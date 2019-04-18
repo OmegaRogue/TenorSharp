@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <IsPackable>true</IsPackable>
+        <Title>TenorSharp</Title>
+        <Authors>OmegaRogue</Authors>
+        <Description>a dotNetCore2.1 Library for Tenor written in C#
+            Powered By Tenor
+        </Description>
+        <Copyright>OmegaRogue 2019</Copyright>
+        <PackageProjectUrl>https://github.com/OmegaRogue/TenorSharp</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/OmegaRogue/TenorSharp</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Tenor, Tenor-API</PackageTags>
+        <RootNamespace>TenorSharp</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.2-beta1"/>
+    </ItemGroup>
+
+</Project>
