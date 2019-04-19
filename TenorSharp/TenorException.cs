@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace TenorSharp
 {
+	/// <summary>
+	///     an Exception thrown by Tenor API Request.
+	/// </summary>
 	[Serializable]
 	public class TenorException : Exception
 	{

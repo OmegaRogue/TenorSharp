@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace TenorSharp
+namespace TenorSharp.ResponseObjects
 {
 	public class MediaObject
 	{

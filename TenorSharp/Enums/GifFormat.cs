@@ -2,6 +2,11 @@
 
 namespace TenorSharp.Enums
 {
+	/// <summary>
+	///     Tenor’s API offers 3 different base formats -- GIF, MP4, and webm -- in a variety of sizes.
+	///     The MP4 and webm formats will play the clip once -- except for the loopedmp4, which will play the clip a few times.
+	///     The GIF format will play the clip on a continuous loop.
+	/// </summary>
 	public enum GifFormat
 	{
 		/// <summary>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TenorSharp.Enums;
 
-namespace TenorSharp
+namespace TenorSharp.ResponseObjects
 {
 	public class GifObject
 	{
@@ -11,7 +11,7 @@ namespace TenorSharp
 		///     a unix timestamp representing when this post was created.
 		/// </summary>
 		[JsonProperty("created")]
-		public float Created;
+		public double Created;
 
 		/// <summary>
 		///     true if this post contains audio (only video formats support audio, the gif image file format can not contain audio
@@ -43,6 +43,12 @@ namespace TenorSharp
 		/// </summary>
 		[JsonProperty("media")]
 		public Dictionary<GifFormat, MediaObject>[] Media;
+
+		/// <summary>
+		///     the amount of Shares the post has.
+		/// </summary>
+		[JsonProperty("shares")]
+		public int Shares;
 
 		/// <summary>
 		///     an array of tags for the post

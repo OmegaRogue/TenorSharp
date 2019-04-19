@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using TenorSharp.ResponseObjects;
 
 namespace TenorSharp.SearchResults
 {
