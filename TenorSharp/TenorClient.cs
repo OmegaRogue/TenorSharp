@@ -1,8 +1,12 @@
+using System;
+using System.IO;
+using System.Net;
 using Newtonsoft.Json;
 using RestSharp;
 using TenorSharp.Enums;
 using TenorSharp.ResponseObjects;
 using TenorSharp.SearchResults;
+using Type = TenorSharp.Enums.Type;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable StringLiteralTypo
@@ -426,6 +430,15 @@ namespace TenorSharp
 		public string GetApiKey()
 		{
 			return _apiKey;
+		}
+
+		public FileStream GetMediaFileStream(Uri url)
+		{
+			var req = WebRequest.Create(url);
+			using (var stream = req.GetResponse().GetResponseStream())
+			{
+				return (FileStream) stream;
+			}
 		}
 	}
 }
