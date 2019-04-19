@@ -8,7 +8,7 @@ TenorSharp can be used to retrieve Content from Tenor without directly interfaci
 
 For Development, fork and Clone this GitHub Repo.
 
-For Usage, Refer to [Intalling]()
+For Usage, Refer to [Intalling](#installing)
 
 If you need more help, refer to the Documentation in IntelliSense.
 
