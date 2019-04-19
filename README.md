@@ -16,11 +16,14 @@ If you need more help, refer to the Documentation in IntelliSense.
 
 TenorSharp is dependent on RestSharp and Newtonsoft.Json
 
+
+Package Manager
 ```
 Install-Package RestSharp -Version 106.6.9
 Install-Package Newtonsoft.Json -Version 12.0.1
 ```
 
+.NET CLI
 ```
 dotnet add package RestSharp --version 106.6.9
 dotnet add package Newtonsoft.Json --version 12.0.1
