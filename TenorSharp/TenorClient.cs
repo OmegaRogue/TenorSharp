@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Net;
 using Newtonsoft.Json;
@@ -6,7 +5,6 @@ using RestSharp;
 using TenorSharp.Enums;
 using TenorSharp.ResponseObjects;
 using TenorSharp.SearchResults;
-using Type = TenorSharp.Enums.Type;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable StringLiteralTypo
@@ -362,9 +360,17 @@ namespace TenorSharp
 		}
 
 
+		/// <summary>
+		///     Start new Session with an Anonymous ID
+		/// </summary>
+		/// <param name="anonId">the Anonymous ID</param>
+		/// <exception cref="TenorException">Thrown when anonId is invalid</exception>
 		public void NewSession(string anonId)
 		{
-			_anonId = anonId;
+			if (anonId.Length >= 16 && anonId.Length <= 32)
+				_anonId = anonId;
+			else
+				throw new TenorException("Anon_id must be between 16 and 32 characters.", 1);
 		}
 
 		public string GetSession()
@@ -432,12 +438,17 @@ namespace TenorSharp
 			return _apiKey;
 		}
 
-		public FileStream GetMediaFileStream(Uri url)
+		/// <summary>
+		///     Gets a File as a Stream from a URL
+		/// </summary>
+		/// <param name="url">the URL</param>
+		/// <returns>the Stream</returns>
+		public Stream GetMediaStream(string url)
 		{
 			var req = WebRequest.Create(url);
 			using (var stream = req.GetResponse().GetResponseStream())
 			{
-				return (FileStream) stream;
+				return stream;
 			}
 		}
 	}

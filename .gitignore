@@ -332,3 +332,5 @@ ASALocalRun/
 
 /TenorTesting/TenorTesting.csproj
 /TenorTesting/
+/TenorTest/TenorTest.csproj
+/TenorTest/UnitTest1.cs
