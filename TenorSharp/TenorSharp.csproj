@@ -13,8 +13,9 @@
         <PackageTags>Tenor, Tenor-API</PackageTags>
         <RootNamespace>TenorSharp</RootNamespace>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-		<PackageReleaseNotes>Initial Release</PackageReleaseNotes>
+		<PackageReleaseNotes>Added Method to get Stream from URL</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageVersion>1.1.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
