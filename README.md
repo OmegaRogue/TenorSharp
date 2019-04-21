@@ -1,4 +1,4 @@
-# TenorSharp
+# TenorSharp [![Build status](https://ci.appveyor.com/api/projects/status/yy365oc4q83el80a?svg=true)](https://ci.appveyor.com/project/OmegaRogue/tenorsharp) [![Build status](https://ci.appveyor.com/api/projects/status/yy365oc4q83el80a/branch/master?svg=true)](https://ci.appveyor.com/project/OmegaRogue/tenorsharp/branch/master)
 
 TenorSharp is a C# Library for the [TenorAPI](https://tenor.com/gifapi). TenorSharp was made with dotNET Core 2.1
 
