@@ -10,7 +10,7 @@ For Development, fork and Clone this GitHub Repo.
 
 For Usage, Refer to [Installing](#installing)
 
-If you need more help, refer to the Documentation in IntelliSense.
+If you need more help, refer to the Documentation in IntelliSense, or [join the Discord Server](https://discord.gg/sWwzJeG).
 
 ### Dependencies
 
