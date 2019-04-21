@@ -6,13 +6,13 @@ namespace TenorSharp
 		///     Get a json object containing a list of the most relevant GIFs for a given search term(s), category(ies), emoji(s),
 		///     or any combination thereof.
 		/// </summary>
-		public const string Search = @"https://api.tenor.com/v1/search?";
+		public const string Search = @"search?";
 
 		/// <summary>
 		///     Get a json object containing a list of the current global trending GIFs. The trending stream is updated regularly
 		///     throughout the day.
 		/// </summary>
-		public const string Trending = @"https://api.tenor.com/v1/trending?";
+		public const string Trending = @"trending?";
 
 		/// <summary>
 		///     Get a json object containing a list of GIF categories associated with the provided type.
@@ -25,7 +25,7 @@ namespace TenorSharp
 		///     emoji - The current featured emoji GIF categories
 		///     trending - The current trending search terms including a preview GIF for each term.
 		/// </summary>
-		public const string Categories = @"https://api.tenor.com/v1/categories?";
+		public const string Categories = @"categories?";
 
 		/// <summary>
 		///     Get a json object containing a list of alternative search terms given a search term.
@@ -33,41 +33,41 @@ namespace TenorSharp
 		///     Results are returned in order of what is most likely to drive a share for a given term, based on historic user
 		///     search and share behavior.
 		/// </summary>
-		public const string SearchSuggestions = @"https://api.tenor.com/v1/search_suggestions?";
+		public const string SearchSuggestions = @"search_suggestions?";
 
 		/// <summary>
 		///     Get a json object containing a list of completed search terms given a partial search term.
 		///     The list is sorted by Tenor’s AI and the number of results will decrease as Tenor’s AI becomes more certain.
 		/// </summary>
-		public const string Autocomplete = @"https://api.tenor.com/v1/autocomplete?";
+		public const string Autocomplete = @"autocomplete?";
 
 		/// <summary>
 		///     Get a json object containing a list of the current trending search terms.
 		///     The list is updated Hourly by Tenor’s AI.
 		/// </summary>
-		public const string TrendingTerms = @"https://api.tenor.com/v1/trending_terms?";
+		public const string TrendingTerms = @"trending_terms?";
 
 		/// <summary>
 		///     Register a user’s sharing of a GIF.
 		/// </summary>
-		public const string RegisterShare = @"https://api.tenor.com/v1/registershare?";
+		public const string RegisterShare = @"registershare?";
 
 		/// <summary>
 		///     Get the GIF(s) for the corresponding id(s)
 		/// </summary>
-		public const string Gifs = @"https://api.tenor.com/v1/gifs?";
+		public const string Gifs = @"gifs?";
 
 		/// <summary>
 		///     Get an anonymous ID for a new user.
 		///     Store the ID in the client's cache for use on any additional API calls made by the user, either in this session or
 		///     any future sessions.
 		/// </summary>
-		public const string AnonId = @"https://api.tenor.com/v1/anonid?";
+		public const string AnonId = @"anonid?";
 
 		/// <summary>
 		///     Get a randomized list of GIFs for a given search term.
 		///     This differs from the search endpoint which returns a rank ordered list of GIFs for a given search term.
 		/// </summary>
-		public const string Random = @"https://api.tenor.com/v1/random?";
+		public const string Random = @"random?";
 	}
 }

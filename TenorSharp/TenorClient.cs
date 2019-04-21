@@ -1,7 +1,10 @@
 using System.IO;
 using System.Net;
+
 using Newtonsoft.Json;
+
 using RestSharp;
+
 using TenorSharp.Enums;
 using TenorSharp.ResponseObjects;
 using TenorSharp.SearchResults;
@@ -17,6 +20,9 @@ namespace TenorSharp
 		///     client key for privileged API access
 		/// </summary>
 		private readonly string _apiKey;
+
+
+		private readonly string _baseUri;
 
 		private readonly RestClient _client = new RestClient();
 
@@ -45,11 +51,15 @@ namespace TenorSharp
 		/// </summary>
 		private MediaFilter _mediaFilter = MediaFilter.off;
 
-		public TenorClient(string apiKey)
+
+		public TenorClient(string apiKey, string baseUrl = "https://api.tenor.com/v1/")
 		{
-			_apiKey = apiKey;
+			_apiKey  = apiKey;
+			_baseUri = baseUrl;
 		}
 
+
+		//	
 		/// <summary>
 		///     Get a json object containing a list of the most relevant GIFs for a given search term(s), category(ies), emoji(s),
 		///     or any combination thereof.
@@ -74,7 +84,7 @@ namespace TenorSharp
 			if (_mediaFilter != MediaFilter.off)
 				optionString += $"&media_filter={_mediaFilter}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.Search + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Search + optionString)).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Gif>(result);
@@ -109,7 +119,7 @@ namespace TenorSharp
 			if (_mediaFilter != MediaFilter.off)
 				optionString += $"&media_filter={_mediaFilter}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.Trending + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Trending + optionString)).Content;
 
 			try
 			{
@@ -138,7 +148,7 @@ namespace TenorSharp
 			if (_anonId != null)
 				optionString += $"&anon_id={_anonId}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.Categories + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Categories + optionString)).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Category>(result);
@@ -170,7 +180,8 @@ namespace TenorSharp
 			if (_mediaFilter != MediaFilter.off)
 				optionString += $"&media_filter={_mediaFilter}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.SearchSuggestions + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.SearchSuggestions + optionString))
+								.Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Terms>(result);
@@ -197,7 +208,7 @@ namespace TenorSharp
 			if (_anonId != null)
 				optionString += $"&anon_id={_anonId}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.Autocomplete + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Autocomplete + optionString)).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Terms>(result);
@@ -223,7 +234,7 @@ namespace TenorSharp
 			if (_anonId != null)
 				optionString += $"&anon_id={_anonId}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.TrendingTerms + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.TrendingTerms + optionString)).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Terms>(result);
@@ -252,7 +263,7 @@ namespace TenorSharp
 			if (q != null)
 				optionString += $"&q={q}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.RegisterShare + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.RegisterShare + optionString)).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Register>(result).ShareStatus;
@@ -276,8 +287,11 @@ namespace TenorSharp
 		/// <param name="ids">a comma separated list of GIF IDs (max: 50)</param>
 		/// <returns>a Tenor Gif Response</returns>
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-		public Gif GetGifs(int limit = 20, int pos = 0,
-			params string[] ids)
+		public Gif GetGifs(
+			int             limit = 20,
+			int             pos   = 0,
+			params string[] ids
+		)
 		{
 			var optionString = $"key={_apiKey}&ids={string.Join(',', ids)}&limit={limit}&pos={pos}";
 
@@ -288,7 +302,7 @@ namespace TenorSharp
 				optionString += $"&media_filter={_mediaFilter}";
 
 
-			var result = _client.Execute(new RestRequest(Endpoints.Gifs + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Gifs + optionString)).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Gif>(result);
@@ -311,7 +325,7 @@ namespace TenorSharp
 		{
 			var optionString = $"key={_apiKey}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.AnonId + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.AnonId + optionString)).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Session>(result).AnonId;
@@ -347,7 +361,7 @@ namespace TenorSharp
 			if (_mediaFilter != MediaFilter.off)
 				optionString += $"&media_filter={_mediaFilter}";
 
-			var result = _client.Execute(new RestRequest(Endpoints.Random + optionString)).Content;
+			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Random + optionString)).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Gif>(result);
