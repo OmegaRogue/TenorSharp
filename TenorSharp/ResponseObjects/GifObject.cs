@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+
 using Newtonsoft.Json;
+
 using TenorSharp.Enums;
 
 namespace TenorSharp.ResponseObjects

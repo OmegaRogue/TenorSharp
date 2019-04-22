@@ -2,9 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TenorSharp", "TenorSharp\TenorSharp.csproj", "{76C82AB6-4068-439B-97FE-73DCACA2C6AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TenorTesting", "TenorTesting\TenorTesting.csproj", "{1DDA73C0-E961-42F0-B721-0087FD374D7D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TenorTest", "TenorTest\TenorTest.csproj", "{C802282A-FA13-44C3-9CA3-4718E261ABFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TenorTest", "TenorTest\TenorTest.csproj", "{536329F1-82F0-4960-B490-0FB33C8A15E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TenorTesting", "TenorTesting\TenorTesting.csproj", "{626CF31B-3791-4392-838A-C0C0C5C7BB19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,13 +16,13 @@ Global
 		{76C82AB6-4068-439B-97FE-73DCACA2C6AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76C82AB6-4068-439B-97FE-73DCACA2C6AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76C82AB6-4068-439B-97FE-73DCACA2C6AB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1DDA73C0-E961-42F0-B721-0087FD374D7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1DDA73C0-E961-42F0-B721-0087FD374D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1DDA73C0-E961-42F0-B721-0087FD374D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1DDA73C0-E961-42F0-B721-0087FD374D7D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{536329F1-82F0-4960-B490-0FB33C8A15E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{536329F1-82F0-4960-B490-0FB33C8A15E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{536329F1-82F0-4960-B490-0FB33C8A15E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{536329F1-82F0-4960-B490-0FB33C8A15E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C802282A-FA13-44C3-9CA3-4718E261ABFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C802282A-FA13-44C3-9CA3-4718E261ABFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C802282A-FA13-44C3-9CA3-4718E261ABFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C802282A-FA13-44C3-9CA3-4718E261ABFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{626CF31B-3791-4392-838A-C0C0C5C7BB19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{626CF31B-3791-4392-838A-C0C0C5C7BB19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{626CF31B-3791-4392-838A-C0C0C5C7BB19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{626CF31B-3791-4392-838A-C0C0C5C7BB19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

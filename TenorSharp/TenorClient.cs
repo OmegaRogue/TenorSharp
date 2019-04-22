@@ -16,15 +16,55 @@ namespace TenorSharp
 {
 	public class TenorClient
 	{
+		private const string BaseUri = "https://api.tenor.com/v1/";
+
+		private static readonly Locale DefaultLocale = new Locale("en_US");
+
+		private readonly Parameter   _anonIdParameter = new Parameter("anon_id", null, ParameterType.QueryString);
+		private readonly RestRequest _anonIdRequest   = new RestRequest(Endpoints.AnonId, Method.GET, DataFormat.Json);
+
 		/// <summary>
 		///     client key for privileged API access
 		/// </summary>
 		private readonly string _apiKey;
 
+		private readonly Parameter _arRangeParameter =
+			new Parameter("ar_range", AspectRatio.all, ParameterType.QueryString);
 
-		private readonly string _baseUri;
+		private readonly RestRequest _autocompleteRequest =
+			new RestRequest(Endpoints.Autocomplete, Method.GET, DataFormat.Json);
 
-		private readonly RestClient _client = new RestClient();
+		private readonly RestRequest _categoryRequest =
+			new RestRequest(Endpoints.Categories, Method.GET, DataFormat.Json);
+
+		private readonly RestClient _client;
+
+		private readonly Parameter _contentFilterParameter =
+			new Parameter("contentfilter", ContentFilter.off, ParameterType.QueryString);
+
+		private readonly RestRequest _gifsRequest = new RestRequest(Endpoints.Gifs, Method.GET, DataFormat.Json);
+
+		private readonly Parameter _localeParameter = new Parameter("locale", DefaultLocale, ParameterType.QueryString);
+
+		private readonly Parameter _mediaFilterParameter =
+			new Parameter("media_filter", MediaFilter.off, ParameterType.QueryString);
+
+
+		private readonly RestRequest _rndGifRequest = new RestRequest(Endpoints.Random, Method.GET, DataFormat.Json);
+
+		private readonly RestRequest _searchRequest = new RestRequest(Endpoints.Search, Method.GET, DataFormat.Json);
+
+		private readonly RestRequest _shareRequest =
+			new RestRequest(Endpoints.RegisterShare, Method.GET, DataFormat.Json);
+
+		private readonly RestRequest _suggestionRequest =
+			new RestRequest(Endpoints.SearchSuggestions, Method.GET, DataFormat.Json);
+
+		private readonly RestRequest _trendingRequest =
+			new RestRequest(Endpoints.Trending, Method.GET, DataFormat.Json);
+
+		private readonly RestRequest _trendingTermsRequest =
+			new RestRequest(Endpoints.TrendingTerms, Method.GET, DataFormat.Json);
 
 		/// <summary>
 		///     specify the anonymous_id tied to the given user
@@ -34,28 +74,59 @@ namespace TenorSharp
 		/// <summary>
 		///     Filter the response GIF_OBJECT list to only include GIFs with aspect ratios that fit with in the selected range.
 		/// </summary>
-		private AspectRatio _arRange = AspectRatio.all;
+		private AspectRatio _arRange;
 
 		/// <summary>
 		///     specify the content safety filter level
 		/// </summary>
-		private ContentFilter _contentFilter = ContentFilter.off;
+		private ContentFilter _contentFilter;
 
 		/// <summary>
 		///     specify default language to interpret search string
 		/// </summary>
-		private Locale _locale = new Locale("en_US");
+		private Locale _locale;
 
 		/// <summary>
-		///     Reduce the Number of GIF formats returned in the GIF_OBJECT list.
+		///     Reduce the Number of GIF formats returned in the GifObject list.
 		/// </summary>
-		private MediaFilter _mediaFilter = MediaFilter.off;
+		private MediaFilter _mediaFilter;
 
 
-		public TenorClient(string apiKey, string baseUrl = "https://api.tenor.com/v1/")
+		public TenorClient(
+			string        apiKey,
+			Locale        locale        = null,
+			AspectRatio   arRange       = AspectRatio.all,
+			ContentFilter contentFilter = ContentFilter.off,
+			MediaFilter   mediaFilter0  = MediaFilter.off,
+			string        anonId        = null,
+			RestClient    testClient    = null
+		)
 		{
-			_apiKey  = apiKey;
-			_baseUri = baseUrl;
+			_locale = locale     ?? DefaultLocale;
+			_client = testClient ?? new RestClient(BaseUri);
+
+			_arRange       = arRange;
+			_contentFilter = contentFilter;
+			_mediaFilter   = mediaFilter0;
+			_apiKey        = apiKey;
+
+			_anonId = anonId;
+
+			_client = (RestClient) _client.AddDefaultParameter("key", apiKey, ParameterType.QueryString);
+
+			UpdateGeneralParams();
+		}
+
+		public TenorClient(TenorConfiguration configuration, RestClient testClient = null) : this(configuration.ApiKey,
+																								  configuration.Locale,
+																								  configuration.ArRange,
+																								  configuration
+																									 .ContentFilter,
+																								  configuration
+																									 .MediaFilter,
+																								  configuration.AnonId,
+																								  testClient)
+		{
 		}
 
 
@@ -75,16 +146,12 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public Gif Search(string q, int limit = 20, int pos = 0)
 		{
-			var optionString =
-				$"key={_apiKey}&q={q}&locale={_locale}&contentfilter={_contentFilter}&ar_range={_arRange}&limit={limit}&pos={pos}";
+			_searchRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
+						  .AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
+						  .AddOrUpdateParameter("pos",   pos,   ParameterType.QueryString);
 
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
 
-			if (_mediaFilter != MediaFilter.off)
-				optionString += $"&media_filter={_mediaFilter}";
-
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Search + optionString)).Content;
+			var result = _client.Execute(_searchRequest).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Gif>(result);
@@ -110,16 +177,10 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public Gif Trending(int limit = 20, int pos = 0)
 		{
-			var optionString =
-				$"key={_apiKey}&locale={_locale}&contentfilter={_contentFilter}&ar_range={_arRange}&limit={limit}&pos={pos}";
+			_trendingRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
+							.AddOrUpdateParameter("pos", pos, ParameterType.QueryString);
 
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
-
-			if (_mediaFilter != MediaFilter.off)
-				optionString += $"&media_filter={_mediaFilter}";
-
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Trending + optionString)).Content;
+			var result = _client.Execute(_trendingRequest).Content;
 
 			try
 			{
@@ -143,12 +204,10 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public Category Categories(Type type = Type.featured)
 		{
-			var optionString = $"key={_apiKey}&locale={_locale}&contentfilter={_contentFilter}&Type={type}";
+			_categoryRequest.AddOrUpdateParameter("Type", type, ParameterType.QueryString);
 
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
 
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Categories + optionString)).Content;
+			var result = _client.Execute(_categoryRequest).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Category>(result);
@@ -172,15 +231,11 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public Terms SearchSuggestions(string q, int limit = 20)
 		{
-			var optionString = $"key={_apiKey}&q={q}&locale={_locale}&limit={limit}";
+			_suggestionRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
+							  .AddOrUpdateParameter("limit", limit, ParameterType.QueryString);
 
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
 
-			if (_mediaFilter != MediaFilter.off)
-				optionString += $"&media_filter={_mediaFilter}";
-
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.SearchSuggestions + optionString))
+			var result = _client.Execute(_suggestionRequest)
 								.Content;
 			try
 			{
@@ -203,12 +258,10 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public Terms AutoComplete(string q, int limit = 20)
 		{
-			var optionString = $"key={_apiKey}&q={q}&locale={_locale}&limit={limit}";
+			_autocompleteRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
+								.AddOrUpdateParameter("limit", limit, ParameterType.QueryString);
 
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
-
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Autocomplete + optionString)).Content;
+			var result = _client.Execute(_autocompleteRequest).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Terms>(result);
@@ -229,12 +282,10 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public Terms TrendingTerms(int limit = 20)
 		{
-			var optionString = $"key={_apiKey}&locale={_locale}&limit={limit}";
+			_autocompleteRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString);
 
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
 
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.TrendingTerms + optionString)).Content;
+			var result = _client.Execute(_autocompleteRequest).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Terms>(result);
@@ -255,15 +306,12 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public string RegisterShare(string id, string q = null)
 		{
-			var optionString = $"key={_apiKey}&id={id}&locale={_locale}";
-
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
+			_shareRequest.AddOrUpdateParameter("id", id);
 
 			if (q != null)
-				optionString += $"&q={q}";
+				_shareRequest.AddOrUpdateParameter("q", q);
 
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.RegisterShare + optionString)).Content;
+			var result = _client.Execute(_shareRequest).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Register>(result).ShareStatus;
@@ -293,16 +341,9 @@ namespace TenorSharp
 			params string[] ids
 		)
 		{
-			var optionString = $"key={_apiKey}&ids={string.Join(',', ids)}&limit={limit}&pos={pos}";
-
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
-
-			if (_mediaFilter != MediaFilter.off)
-				optionString += $"&media_filter={_mediaFilter}";
-
-
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Gifs + optionString)).Content;
+			_gifsRequest.AddOrUpdateParameter("ids", string.Join(',', ids), ParameterType.QueryString)
+						.AddOrUpdateParameter("limit", limit).AddOrUpdateParameter("pos", pos);
+			var result = _client.Execute(_gifsRequest).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Gif>(result);
@@ -321,11 +362,9 @@ namespace TenorSharp
 		/// </summary>
 		/// <returns>a Random AnonId</returns>
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-		public string GetAnonId()
+		public string GetNewAnonId()
 		{
-			var optionString = $"key={_apiKey}";
-
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.AnonId + optionString)).Content;
+			var result = _client.Execute(_anonIdRequest).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Session>(result).AnonId;
@@ -352,16 +391,11 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public Gif GetRandomGifs(string q, int limit = 20, int pos = 0)
 		{
-			var optionString =
-				$"key={_apiKey}&q={q}&locale={_locale}&contentfilter={_contentFilter}&ar_range={_arRange}&limit={limit}&pos={pos}";
+			_rndGifRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString).AddOrUpdateParameter("limit", limit)
+						  .AddOrUpdateParameter("pos", pos);
 
-			if (_anonId != null)
-				optionString += $"&anon_id={_anonId}";
 
-			if (_mediaFilter != MediaFilter.off)
-				optionString += $"&media_filter={_mediaFilter}";
-
-			var result = _client.Execute(new RestRequest(_baseUri + Endpoints.Random + optionString)).Content;
+			var result = _client.Execute(_rndGifRequest).Content;
 			try
 			{
 				return JsonConvert.DeserializeObject<Gif>(result);
@@ -382,9 +416,14 @@ namespace TenorSharp
 		public void NewSession(string anonId)
 		{
 			if (anonId.Length >= 16 && anonId.Length <= 32)
+			{
 				_anonId = anonId;
+				UpdateGeneralParams();
+			}
 			else
+			{
 				throw new TenorException("Anon_id must be between 16 and 32 characters.", 1);
+			}
 		}
 
 		public string GetSession()
@@ -394,12 +433,13 @@ namespace TenorSharp
 
 		public void SetLocale(string locale)
 		{
-			_locale = new Locale(locale);
+			SetLocale(new Locale(locale));
 		}
 
 		public void SetLocale(Locale locale)
 		{
 			_locale = locale;
+			UpdateGeneralParams();
 		}
 
 		public Locale GetLocale()
@@ -410,16 +450,19 @@ namespace TenorSharp
 		public void ResetLocale()
 		{
 			_locale = new Locale("en_US");
+			UpdateGeneralParams();
 		}
 
 		public void ClearSession()
 		{
 			_anonId = null;
+			UpdateGeneralParams();
 		}
 
 		public void SetContentFilter(ContentFilter filter)
 		{
 			_contentFilter = filter;
+			UpdateGeneralParams();
 		}
 
 		public ContentFilter GetContentFilter()
@@ -430,6 +473,7 @@ namespace TenorSharp
 		public void SetMediaFilter(MediaFilter filter)
 		{
 			_mediaFilter = filter;
+			UpdateGeneralParams();
 		}
 
 		public MediaFilter GetMediaFilter()
@@ -440,6 +484,7 @@ namespace TenorSharp
 		public void SetAspectRatioRange(AspectRatio ratio)
 		{
 			_arRange = ratio;
+			UpdateGeneralParams();
 		}
 
 		public AspectRatio GetAspectRatioRange()
@@ -463,6 +508,63 @@ namespace TenorSharp
 			using (var stream = req.GetResponse().GetResponseStream())
 			{
 				return stream;
+			}
+		}
+
+		private void UpdateGeneralParams()
+		{
+			_localeParameter.Value        = _locale;
+			_contentFilterParameter.Value = _contentFilter;
+			_arRangeParameter.Value       = _arRange;
+			_mediaFilterParameter.Value   = _mediaFilter;
+			_anonIdParameter.Value        = _anonId;
+
+			_searchRequest.AddOrUpdateParameter(_localeParameter).AddOrUpdateParameter(_contentFilterParameter)
+						  .AddOrUpdateParameter(_arRangeParameter);
+			_rndGifRequest.AddOrUpdateParameter(_localeParameter).AddOrUpdateParameter(_contentFilterParameter)
+						  .AddOrUpdateParameter(_arRangeParameter);
+			_gifsRequest.AddOrUpdateParameter(_localeParameter).AddOrUpdateParameter(_contentFilterParameter)
+						.AddOrUpdateParameter(_arRangeParameter);
+			_shareRequest.AddOrUpdateParameter(_localeParameter);
+			_trendingRequest.AddOrUpdateParameter(_localeParameter).AddOrUpdateParameter(_contentFilterParameter)
+							.AddOrUpdateParameter(_arRangeParameter);
+			_categoryRequest.AddOrUpdateParameter(_localeParameter).AddOrUpdateParameter(_contentFilterParameter);
+			_suggestionRequest.AddOrUpdateParameter(_localeParameter);
+			_autocompleteRequest.AddOrUpdateParameter(_localeParameter);
+			_trendingTermsRequest.AddOrUpdateParameter(_localeParameter);
+
+			if (_mediaFilter != MediaFilter.off)
+			{
+				_searchRequest.AddOrUpdateParameter(_mediaFilterParameter);
+				_rndGifRequest.AddOrUpdateParameter(_mediaFilterParameter);
+				_gifsRequest.AddOrUpdateParameter(_mediaFilterParameter);
+				_trendingRequest.AddOrUpdateParameter(_mediaFilterParameter);
+				_suggestionRequest.AddOrUpdateParameter(_mediaFilterParameter);
+			}
+
+			if (_anonId == null)
+			{
+				_searchRequest.RemoveParameterIfExists(_anonIdParameter);
+				_rndGifRequest.RemoveParameterIfExists(_anonIdParameter);
+				_gifsRequest.RemoveParameterIfExists(_anonIdParameter);
+				_shareRequest.RemoveParameterIfExists(_anonIdParameter);
+				_trendingRequest.RemoveParameterIfExists(_anonIdParameter);
+				_categoryRequest.RemoveParameterIfExists(_anonIdParameter);
+				_suggestionRequest.RemoveParameterIfExists(_anonIdParameter);
+				_autocompleteRequest.RemoveParameterIfExists(_anonIdParameter);
+				_trendingTermsRequest.RemoveParameterIfExists(_anonIdParameter);
+			}
+			else
+			{
+				_searchRequest.AddOrUpdateParameter(_anonIdParameter);
+				_rndGifRequest.AddOrUpdateParameter(_anonIdParameter);
+				_gifsRequest.AddOrUpdateParameter(_anonIdParameter);
+				_shareRequest.AddOrUpdateParameter(_anonIdParameter);
+				_trendingRequest.AddOrUpdateParameter(_anonIdParameter);
+				_categoryRequest.AddOrUpdateParameter(_anonIdParameter);
+				_suggestionRequest.AddOrUpdateParameter(_anonIdParameter);
+				_autocompleteRequest.AddOrUpdateParameter(_anonIdParameter);
+				_trendingTermsRequest.AddOrUpdateParameter(_anonIdParameter);
 			}
 		}
 	}
