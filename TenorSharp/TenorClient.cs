@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Net;
 
@@ -8,6 +9,8 @@ using RestSharp;
 using TenorSharp.Enums;
 using TenorSharp.ResponseObjects;
 using TenorSharp.SearchResults;
+
+using Type = TenorSharp.Enums.Type;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable StringLiteralTypo
@@ -394,7 +397,6 @@ namespace TenorSharp
 			_rndGifRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString).AddOrUpdateParameter("limit", limit)
 						  .AddOrUpdateParameter("pos", pos);
 
-
 			var result = _client.Execute(_rndGifRequest).Content;
 			try
 			{
@@ -502,13 +504,16 @@ namespace TenorSharp
 		/// </summary>
 		/// <param name="url">the URL</param>
 		/// <returns>the Stream</returns>
+		public Stream GetMediaStream(Uri url)
+		{
+			var req    = WebRequest.Create(url);
+			var stream = req.GetResponse().GetResponseStream();
+			return stream;
+		}
+
 		public Stream GetMediaStream(string url)
 		{
-			var req = WebRequest.Create(url);
-			using (var stream = req.GetResponse().GetResponseStream())
-			{
-				return stream;
-			}
+			return GetMediaStream(new Uri(url));
 		}
 
 		private void UpdateGeneralParams()

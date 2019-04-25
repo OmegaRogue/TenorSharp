@@ -12,7 +12,7 @@ namespace TenorSharp
 		///     Get a json object containing a list of the current global trending GIFs. The trending stream is updated regularly
 		///     throughout the day.
 		/// </summary>
-		public const string Trending = "trending?";
+		public const string Trending = "trending";
 
 		/// <summary>
 		///     Get a json object containing a list of GIF categories associated with the provided type.
