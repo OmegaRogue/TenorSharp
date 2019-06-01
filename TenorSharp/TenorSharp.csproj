@@ -15,7 +15,7 @@
         <PackageTags>Tenor, Tenor-API</PackageTags>
         <RootNamespace>TenorSharp</RootNamespace>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-		<PackageReleaseNotes>Added Method to get Stream from URL</PackageReleaseNotes>
+		<PackageReleaseNotes>Added Method to get Next Gif Results</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageVersion>1.1.0</PackageVersion>
     </PropertyGroup>
