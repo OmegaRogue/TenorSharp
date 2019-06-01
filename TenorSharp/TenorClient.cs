@@ -157,7 +157,12 @@ namespace TenorSharp
 			var result = _client.Execute(_searchRequest).Content;
 			try
 			{
-				return JsonConvert.DeserializeObject<Gif>(result);
+				var res = JsonConvert.DeserializeObject<Gif>(result);
+				res.Client = this;
+				res.Term   = q;
+				res.Count  = limit;
+				res.Type   = SearchTypes.search;
+				return res;
 			}
 			catch (JsonException)
 			{
@@ -187,7 +192,11 @@ namespace TenorSharp
 
 			try
 			{
-				return JsonConvert.DeserializeObject<Gif>(result);
+				var res = JsonConvert.DeserializeObject<Gif>(result);
+				res.Client = this;
+				res.Count  = limit;
+				res.Type   = SearchTypes.trending;
+				return res;
 			}
 			catch (JsonException)
 			{
@@ -349,7 +358,12 @@ namespace TenorSharp
 			var result = _client.Execute(_gifsRequest).Content;
 			try
 			{
-				return JsonConvert.DeserializeObject<Gif>(result);
+				var res = JsonConvert.DeserializeObject<Gif>(result);
+				res.Client = this;
+				res.Count  = limit;
+				res.Ids    = ids;
+				res.Type   = SearchTypes.getGifs;
+				return res;
 			}
 			catch (JsonException)
 			{
@@ -400,7 +414,12 @@ namespace TenorSharp
 			var result = _client.Execute(_rndGifRequest).Content;
 			try
 			{
-				return JsonConvert.DeserializeObject<Gif>(result);
+				var res = JsonConvert.DeserializeObject<Gif>(result);
+				res.Client = this;
+				res.Term   = q;
+				res.Count  = limit;
+				res.Type   = SearchTypes.getRandom;
+				return res;
 			}
 			catch (JsonException)
 			{
