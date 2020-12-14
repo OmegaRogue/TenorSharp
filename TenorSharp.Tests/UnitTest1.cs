@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Net;
 
 using Moq;
 
@@ -26,12 +25,12 @@ namespace TenorSharp.Tests
 		{
 			_testOutputHelper = testOutputHelper;
 
-			testClient.Setup(x => x.ExecuteAsync(It.IsAny<IRestRequest>(),
-												 It.IsAny<Action<IRestResponse, RestRequestAsyncHandle>>()))
-					  .Callback<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>>((request, callback) =>
-					   {
-						   callback(new RestResponse {StatusCode = HttpStatusCode.OK}, null);
-					   });
+			// testClient.Setup(x => x.ExecuteAsync(It.IsAny<IRestRequest>(),
+			// 									 It.IsAny<Action<IRestResponse, RestRequestAsyncHandle>>()))
+			// 		  .Callback<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>>((request, callback) =>
+			// 		   {
+			// 			   callback(new RestResponse {StatusCode = HttpStatusCode.OK}, null);
+			// 		   });
 		}
 
 		private static string RndString(int len)
