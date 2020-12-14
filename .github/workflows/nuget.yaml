@@ -2,7 +2,7 @@ name: Release
 
 on:
   workflow_run:
-    workflows: ["NET Core"]
+    workflows: [".NET Core"]
     branches: [ master ]
     types:
       - completed
@@ -12,7 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup .NET Core
+      - name: Setup .NET Core 3.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Setup .NET 5.0
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '5.0.x'
