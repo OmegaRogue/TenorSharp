@@ -23,3 +23,5 @@ jobs:
       run: dotnet build TenorSharp --configuration Release --no-restore
     - name: Test
       run: dotnet test TenorSharp.Tests --no-restore --verbosity normal
+      env:
+        TENOR_TEST_API_KEY: ${{ secrets.TENOR_TEST_API_KEY }}

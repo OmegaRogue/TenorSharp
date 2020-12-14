@@ -333,6 +333,3 @@ ASALocalRun/
 /TenorTesting/TenorTesting.csproj
 /TenorTesting/
 /TenorAPI.sln.DotSettings
-/TenorSharp.Tests/
-/TenorSharp.Tests/TenorSharp.Tests.csproj
-/TenorSharp.Tests/MockData.cs

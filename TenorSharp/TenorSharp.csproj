@@ -1,28 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
         <IsPackable>true</IsPackable>
         <Title>TenorSharp</Title>
         <Authors>OmegaRogue</Authors>
 		<Description>a dotNetCore2.1 Library for Tenor written in C#
 			here is an Invite to the TenorSharp Discord Server: https://discord.gg/sWwzJeG
 		</Description>
-        <Copyright>OmegaRogue 2019</Copyright>
+        <Copyright>OmegaRogue 2020</Copyright>
         <PackageProjectUrl>https://github.com/OmegaRogue/TenorSharp</PackageProjectUrl>
         <RepositoryUrl>https://github.com/OmegaRogue/TenorSharp</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>Tenor, Tenor-API</PackageTags>
         <RootNamespace>TenorSharp</RootNamespace>
-		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-		<PackageReleaseNotes>Added Method to get Next Gif Results</PackageReleaseNotes>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageVersion>1.1.0</PackageVersion>
+        <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+        <PackageReleaseNotes>Added Method to get Next Gif Results</PackageReleaseNotes>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageVersion>1.1.0</PackageVersion>
+        <TargetFrameworks>netcoreapp3.1;netcoreapp5.0</TargetFrameworks>
+        <LangVersion>9</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.1"/>
-		<PackageReference Include="RestSharp" Version="106.6.9"/>
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
+        <PackageReference Include="RestSharp" Version="106.11.7"/>
     </ItemGroup>
 
 </Project>
