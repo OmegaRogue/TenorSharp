@@ -17,18 +17,6 @@ If you need more help, refer to the Documentation in IntelliSense, or [join the 
 TenorSharp is dependent on RestSharp and Newtonsoft.Json
 
 
-Package Manager
-```
-Install-Package RestSharp -Version 106.6.9
-Install-Package Newtonsoft.Json -Version 12.0.1
-```
-
-.NET CLI
-```
-dotnet add package RestSharp --version 106.6.9
-dotnet add package Newtonsoft.Json --version 12.0.1
-```
-
 ### Installing
 
 Use NuGet to Install [this Package](https://www.nuget.org/packages/TenorSharp/1.0.0)
@@ -50,7 +38,8 @@ public static void Main(string[] args)
 
 ## Built With
 
-* [dotNET Core 2.1](https://dotnet.microsoft.com/download/dotnet-core/2.1) - The framework used
+* [dotNET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1) - The framework used
+* [dotNET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) - The framework used
 
 
 ## Contributing

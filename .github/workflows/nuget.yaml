@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  pull_request:
+    types: [closed]
+    branches: [master]
   workflow_run:
     workflows: [".NET Core"]
     branches: [ master ]
@@ -9,6 +12,8 @@ on:
 
 jobs:
   publish-nuget:
+    if: github.event.pull_request.merged == true
+    
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

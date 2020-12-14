@@ -4,9 +4,9 @@
         <IsPackable>true</IsPackable>
         <Title>TenorSharp</Title>
         <Authors>OmegaRogue</Authors>
-		<Description>a dotNetCore2.1 Library for Tenor written in C#
-			here is an Invite to the TenorSharp Discord Server: https://discord.gg/sWwzJeG
-		</Description>
+        <Description>a dotNetCore3.1 Library for Tenor written in C#
+            here is an Invite to the TenorSharp Discord Server: https://discord.gg/sWwzJeG
+        </Description>
         <Copyright>OmegaRogue 2020</Copyright>
         <PackageProjectUrl>https://github.com/OmegaRogue/TenorSharp</PackageProjectUrl>
         <RepositoryUrl>https://github.com/OmegaRogue/TenorSharp</RepositoryUrl>
