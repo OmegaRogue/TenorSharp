@@ -41,7 +41,7 @@ namespace TenorSharp.Tests
 		{
 			var anonId = RndString(18);
 			var q      = RndString(10);
-			var limit  = Random.Next(50);
+			var limit  = Random.Next(1, 50);
 			var pos    = Random.Next();
 			try
 			{
@@ -138,7 +138,7 @@ namespace TenorSharp.Tests
 		public void TestGetGifs()
 		{
 			var anonId = RndString(18);
-			var limit  = Random.Next(50);
+			var limit  = Random.Next(1, 50);
 			var pos    = Random.Next(10);
 			try
 			{
@@ -158,7 +158,7 @@ namespace TenorSharp.Tests
 		public void TestRegisterShare()
 		{
 			var anonId = RndString(18);
-			var limit  = Random.Next(50);
+			var limit  = Random.Next(1, 50);
 			var pos    = Random.Next(10);
 			try
 			{
@@ -180,7 +180,7 @@ namespace TenorSharp.Tests
 		{
 			var anonId = RndString(18);
 			var q      = RndString(10);
-			var limit  = Random.Next(50);
+			var limit  = Random.Next(1, 50);
 			try
 			{
 				_client.NewSession(anonId);
@@ -198,7 +198,7 @@ namespace TenorSharp.Tests
 		public void TestTrendingTerms()
 		{
 			var anonId = RndString(18);
-			var limit  = Random.Next(50);
+			var limit  = Random.Next(1, 50);
 			try
 			{
 				_client.NewSession(anonId);
@@ -219,7 +219,7 @@ namespace TenorSharp.Tests
 		{
 			var anonId = RndString(18);
 			var q      = RndString(10);
-			var limit  = Random.Next(50);
+			var limit  = Random.Next(1, 50);
 			var pos    = Random.Next(10);
 			try
 			{
