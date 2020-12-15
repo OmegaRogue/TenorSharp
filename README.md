@@ -13,7 +13,8 @@
 [7]: https://img.shields.io/discord/569206809693257728
 [8]: https://discord.gg/sWwzJeG
 
-TenorSharp is a C# Library for the [TenorAPI](https://tenor.com/gifapi). TenorSharp was made with dotNET Core 2.1
+TenorSharp is a C# Library for the [TenorAPI](https://tenor.com/gifapi). TenorSharp was made with dotNet Core 3.1 and
+dotNet 5.0
 
 TenorSharp can be used to retrieve Content from Tenor without directly interfacing with the Tenor REST API.
 
@@ -32,7 +33,7 @@ TenorSharp is dependent on RestSharp and Newtonsoft.Json
 
 ### Installing
 
-Use NuGet to Install [this Package](https://www.nuget.org/packages/TenorSharp/1.0.0)
+Use NuGet to Install [this Package](https://www.nuget.org/packages/TenorSharp/)
 
 ## Usage
 Refer to the [Tenor API Attribution Guidelines](https://tenor.com/gifapi/documentation#attribution) to properly attribute Content retrieved from Tenor.
