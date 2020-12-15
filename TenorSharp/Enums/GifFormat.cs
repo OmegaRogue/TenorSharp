@@ -95,8 +95,6 @@ namespace TenorSharp.Enums
 		///     Usage Notes: Use this size for GIF previews on mobile
 		///     Media Filters supported: default
 		/// </summary>
-		nanowebm,
-
-		webp_transparent
+		nanowebm
 	}
 }
