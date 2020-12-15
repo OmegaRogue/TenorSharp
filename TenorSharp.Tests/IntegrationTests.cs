@@ -13,7 +13,6 @@ namespace TenorSharp.Tests
 	[Collection("Integration Tests")]
 	public class IntegrationTests
 	{
-		private const           string Chars  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 		private static readonly string ApiKey = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
 
 		private readonly TenorClient _client =
