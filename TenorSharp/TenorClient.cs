@@ -21,9 +21,9 @@ namespace TenorSharp
 	{
 		private const string BaseUri = "https://api.tenor.com/v1/";
 
-		private static readonly Locale DefaultLocale = new Locale("en_US");
+		private static readonly Locale DefaultLocale = new("en_US");
 
-		private readonly RestRequest _anonIdRequest = new RestRequest(Endpoints.AnonId, Method.GET, DataFormat.Json);
+		private readonly RestRequest _anonIdRequest = new(Endpoints.AnonId, Method.GET, DataFormat.Json);
 
 		/// <summary>
 		///     client key for privileged API access
@@ -32,30 +32,30 @@ namespace TenorSharp
 
 
 		private readonly RestRequest _autocompleteRequest =
-			new RestRequest(Endpoints.Autocomplete, Method.GET, DataFormat.Json);
+			new(Endpoints.Autocomplete, Method.GET, DataFormat.Json);
 
 		private readonly RestRequest _categoryRequest =
-			new RestRequest(Endpoints.Categories, Method.GET, DataFormat.Json);
+			new(Endpoints.Categories, Method.GET, DataFormat.Json);
 
 		private readonly RestClient _client;
 
-		private readonly RestRequest _gifsRequest = new RestRequest(Endpoints.Gifs, Method.GET, DataFormat.Json);
+		private readonly RestRequest _gifsRequest = new(Endpoints.Gifs, Method.GET, DataFormat.Json);
 
-		private readonly RestRequest _rndGifRequest = new RestRequest(Endpoints.Random, Method.GET, DataFormat.Json);
+		private readonly RestRequest _rndGifRequest = new(Endpoints.Random, Method.GET, DataFormat.Json);
 
-		private readonly RestRequest _searchRequest = new RestRequest(Endpoints.Search, Method.GET, DataFormat.Json);
+		private readonly RestRequest _searchRequest = new(Endpoints.Search, Method.GET, DataFormat.Json);
 
 		private readonly RestRequest _shareRequest =
-			new RestRequest(Endpoints.RegisterShare, Method.GET, DataFormat.Json);
+			new(Endpoints.RegisterShare, Method.GET, DataFormat.Json);
 
 		private readonly RestRequest _suggestionRequest =
-			new RestRequest(Endpoints.SearchSuggestions, Method.GET, DataFormat.Json);
+			new(Endpoints.SearchSuggestions, Method.GET, DataFormat.Json);
 
 		private readonly RestRequest _trendingRequest =
-			new RestRequest(Endpoints.Trending, Method.GET, DataFormat.Json);
+			new(Endpoints.Trending, Method.GET, DataFormat.Json);
 
 		private readonly RestRequest _trendingTermsRequest =
-			new RestRequest(Endpoints.TrendingTerms, Method.GET, DataFormat.Json);
+			new(Endpoints.TrendingTerms, Method.GET, DataFormat.Json);
 
 		/// <summary>
 		///     specify the anonymous_id tied to the given user
@@ -88,7 +88,7 @@ namespace TenorSharp
 			Locale        locale        = null,
 			AspectRatio   arRange       = AspectRatio.all,
 			ContentFilter contentFilter = ContentFilter.off,
-			MediaFilter   mediaFilter0  = MediaFilter.off,
+			MediaFilter   mediaFilter   = MediaFilter.off,
 			string        anonId        = null,
 			RestClient    testClient    = null
 		)
@@ -98,7 +98,7 @@ namespace TenorSharp
 
 			_arRange       = arRange;
 			_contentFilter = contentFilter;
-			_mediaFilter   = mediaFilter0;
+			_mediaFilter   = mediaFilter;
 			_apiKey        = apiKey;
 
 			_anonId = anonId;
@@ -133,7 +133,7 @@ namespace TenorSharp
 		/// </param>
 		/// <returns>a Tenor Gif Response</returns>
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-		public Gif Search(string q, int limit = 20, int pos = 0)
+		public Gif Search(string q, int limit = 20, string pos = "0")
 		{
 			_searchRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
 						  .AddOrUpdateParameter("limit",         limit,          ParameterType.QueryString)
@@ -165,6 +165,24 @@ namespace TenorSharp
 		}
 
 		/// <summary>
+		///     Get a json object containing a list of the most relevant GIFs for a given search term(s), category(ies), emoji(s),
+		///     or any combination thereof.
+		/// </summary>
+		/// <param name="q">a search string</param>
+		/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
+		/// <param name="pos">
+		///     get results starting at position "value".
+		///     Use a non-zero "next" value returned by API results to get the next set of results.
+		///     pos is not an index and may be an integer, float, or string
+		/// </param>
+		/// <returns>a Tenor Gif Response</returns>
+		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+		public Gif Search(string q, int limit = 20, int pos = 0)
+		{
+			return Search(q, limit, pos.ToString());
+		}
+
+		/// <summary>
 		///     Get a json object containing a list of the current global trending GIFs. The trending stream is updated regularly
 		///     throughout the day.
 		/// </summary>
@@ -176,7 +194,7 @@ namespace TenorSharp
 		/// </param>
 		/// <returns>a Tenor Gif Response</returns>
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-		public Gif Trending(int limit = 20, int pos = 0)
+		public Gif Trending(int limit = 20, string pos = "0")
 		{
 			_trendingRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
 							.AddOrUpdateParameter("pos",           pos,            ParameterType.QueryString)
@@ -369,7 +387,7 @@ namespace TenorSharp
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 		public Gif GetGifs(
 			int             limit = 20,
-			int             pos   = 0,
+			string          pos   = "0",
 			params string[] ids
 		)
 		{
@@ -399,6 +417,27 @@ namespace TenorSharp
 				var error = JsonConvert.DeserializeObject<HttpError>(result);
 				throw new TenorException(error.Error, error.Code);
 			}
+		}
+
+		/// <summary>
+		///     Get the GIF(s) for the corresponding id(s)
+		/// </summary>
+		/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
+		/// <param name="pos">
+		///     get results starting at position "value".
+		///     Use a non-zero "next" value returned by API results to get the next set of results.
+		///     pos is not an index and may be an integer, float, or string
+		/// </param>
+		/// <param name="ids">a comma separated list of GIF IDs (max: 50)</param>
+		/// <returns>a Tenor Gif Response</returns>
+		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+		public Gif GetGifs(
+			int             limit = 20,
+			int             pos   = 0,
+			params string[] ids
+		)
+		{
+			return GetGifs(limit, pos.ToString(), ids);
 		}
 
 		/// <summary>
@@ -435,7 +474,7 @@ namespace TenorSharp
 		/// </param>
 		/// <returns>a Tenor Gif Response</returns>
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-		public Gif GetRandomGifs(string q, int limit = 20, int pos = 0)
+		public Gif GetRandomGifs(string q, int limit = 20, string pos = "0")
 		{
 			_rndGifRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString).AddOrUpdateParameter("limit", limit)
 						  .AddOrUpdateParameter("pos",           pos)
@@ -457,11 +496,33 @@ namespace TenorSharp
 				res.Type   = SearchTypes.getRandom;
 				return res;
 			}
-			catch (JsonException)
+			catch (JsonException e)
 			{
 				var error = JsonConvert.DeserializeObject<HttpError>(result);
-				throw new TenorException(error.Error, error.Code);
+				throw new TenorException(error.Error, e, error.Code);
 			}
+			catch (Exception e)
+			{
+				throw new TenorException(e.Message, e, e.HResult);
+			}
+		}
+
+		/// <summary>
+		///     Get a randomized list of GIFs for a given search term. This differs from the search endpoint which returns a rank
+		///     ordered list of GIFs for a given search term.
+		/// </summary>
+		/// <param name="q">a search string</param>
+		/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
+		/// <param name="pos">
+		///     get results starting at position "value".
+		///     Use a non-zero "next" value returned by API results to get the next set of results.
+		///     pos is not an index and may be an integer, float, or string
+		/// </param>
+		/// <returns>a Tenor Gif Response</returns>
+		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+		public Gif GetRandomGifs(string q, int limit = 20, int pos = 0)
+		{
+			return GetRandomGifs(q, limit, pos.ToString());
 		}
 
 

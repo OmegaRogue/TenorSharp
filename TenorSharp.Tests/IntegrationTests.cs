@@ -1,9 +1,7 @@
 using System;
 using System.Linq;
 
-using Moq;
-
-using RestSharp;
+using TenorSharp.Enums;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -12,37 +10,29 @@ using Type = TenorSharp.Enums.Type;
 
 namespace TenorSharp.Tests
 {
-	public class UnitTest1
+	public class IntegrationTests
 	{
-		private const           string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		private static readonly Mock<RestClient> testClient = new();
-		private static readonly Random random = new();
-		private static readonly string ApiKey = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
-		private readonly        TenorClient _client = new(ApiKey);
+		private const           string      Chars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		private static readonly Random      Random  = new();
+		private static readonly string      ApiKey  = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
+		private readonly        TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic);
 
 
 		private readonly ITestOutputHelper _testOutputHelper;
 
-		public UnitTest1(ITestOutputHelper testOutputHelper)
+		public IntegrationTests(ITestOutputHelper testOutputHelper)
 		{
 			_testOutputHelper = testOutputHelper;
-
-			// testClient.Setup(x => x.ExecuteAsync(It.IsAny<IRestRequest>(),
-			// 									 It.IsAny<Action<IRestResponse, RestRequestAsyncHandle>>()))
-			// 		  .Callback<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>>((request, callback) =>
-			// 		   {
-			// 			   callback(new RestResponse {StatusCode = HttpStatusCode.OK}, null);
-			// 		   });
 		}
 
 		private static string RndString(int len)
 		{
-			return new(Enumerable.Range(1, len).Select(_ => Chars[random.Next(Chars.Length)]).ToArray());
+			return new(Enumerable.Range(1, len).Select(_ => Chars[Random.Next(Chars.Length)]).ToArray());
 		}
 
 		private static string RndLenString()
 		{
-			var len = random.Next();
+			var len = Random.Next();
 			return RndString(len);
 		}
 
@@ -51,8 +41,8 @@ namespace TenorSharp.Tests
 		{
 			var anonId = RndString(18);
 			var q      = RndString(10);
-			var limit  = random.Next(50);
-			var pos    = random.Next();
+			var limit  = Random.Next(1, 50);
+			var pos    = Random.Next();
 			try
 			{
 				_client.NewSession(anonId);
@@ -135,7 +125,7 @@ namespace TenorSharp.Tests
 			try
 			{
 				_client.NewSession(RndString(18));
-				_client.AutoComplete(RndString(10), random.Next(50));
+				_client.AutoComplete(RndString(10), Random.Next(50));
 			}
 			catch (TenorException e)
 			{
@@ -147,11 +137,15 @@ namespace TenorSharp.Tests
 		[Fact]
 		public void TestGetGifs()
 		{
+			var anonId = RndString(18);
+			var limit  = Random.Next(1, 50);
+			var pos    = Random.Next(10);
 			try
 			{
-				_client.NewSession(RndString(18));
+				_client.NewSession(anonId);
+				var result = _client.Search("test", limit, pos);
 
-				// _client.GetGifs(RndString(10), random.Next(50), random.Next());
+				_client.GetGifs(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
 			}
 			catch (TenorException e)
 			{
@@ -163,11 +157,16 @@ namespace TenorSharp.Tests
 		[Fact]
 		public void TestRegisterShare()
 		{
+			var anonId = RndString(18);
+			var limit  = Random.Next(1, 50);
+			var pos    = Random.Next(10);
 			try
 			{
-				_client.NewSession(RndString(18));
+				_client.NewSession(anonId);
+				var result = _client.Search("test", limit, pos);
+				var id     = result.GifResults.First().Id;
 
-				// _client.RegisterShare(RndString(10), random.Next(50), random.Next());
+				_client.RegisterShare(id, "test");
 			}
 			catch (TenorException e)
 			{
@@ -179,11 +178,14 @@ namespace TenorSharp.Tests
 		[Fact]
 		public void TestSearchSuggestions()
 		{
+			var anonId = RndString(18);
+			var q      = RndString(10);
+			var limit  = Random.Next(1, 50);
 			try
 			{
-				_client.NewSession(RndString(18));
+				_client.NewSession(anonId);
 
-				// _client.SearchSuggestions(RndString(10), random.Next(50), random.Next());
+				_client.SearchSuggestions(q, limit);
 			}
 			catch (TenorException e)
 			{
@@ -195,14 +197,18 @@ namespace TenorSharp.Tests
 		[Fact]
 		public void TestTrendingTerms()
 		{
+			var anonId = RndString(18);
+			var limit  = Random.Next(1, 50);
 			try
 			{
-				_client.NewSession(RndString(18));
+				_client.NewSession(anonId);
 
-				// _client.TrendingTerms(RndString(10), random.Next(50), random.Next());
+				_client.TrendingTerms(limit);
 			}
 			catch (TenorException e)
 			{
+				_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+											$"limit: {limit}");
 				_testOutputHelper.WriteLine(e.ToString());
 				throw;
 			}
@@ -213,8 +219,8 @@ namespace TenorSharp.Tests
 		{
 			var anonId = RndString(18);
 			var q      = RndString(10);
-			var limit  = random.Next(50);
-			var pos    = random.Next(10);
+			var limit  = Random.Next(1, 50);
+			var pos    = Random.Next(10);
 			try
 			{
 				_client.NewSession(anonId);
@@ -226,11 +232,9 @@ namespace TenorSharp.Tests
 											$"q: {q}\n"           +
 											$"limit: {limit}\n"   +
 											$"pos: {pos}");
-				_testOutputHelper.WriteLine(e.Message);
-				_testOutputHelper.WriteLine($"{e.ErrorCode}");
 				_testOutputHelper.WriteLine(e.ToString());
 
-				// throw;
+				throw;
 			}
 		}
 
@@ -239,9 +243,7 @@ namespace TenorSharp.Tests
 		{
 			try
 			{
-				_client.NewSession(RndString(18));
-
-				// _client.GetNewAnonId(RndString(10), random.Next(50), random.Next());
+				_client.GetNewAnonId();
 			}
 			catch (TenorException e)
 			{
