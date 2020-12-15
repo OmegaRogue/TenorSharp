@@ -223,6 +223,23 @@ namespace TenorSharp
 		}
 
 		/// <summary>
+		///     Get a json object containing a list of the current global trending GIFs. The trending stream is updated regularly
+		///     throughout the day.
+		/// </summary>
+		/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
+		/// <param name="pos">
+		///     get results starting at position "value".
+		///     Use a non-zero "next" value returned by API results to get the next set of results.
+		///     pos is not an index and may be an integer, float, or string
+		/// </param>
+		/// <returns>a Tenor Gif Response</returns>
+		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+		public Gif Trending(int limit = 20, int pos = 0)
+		{
+			return Trending(limit, pos.ToString());
+		}
+
+		/// <summary>
 		///     Get a json object containing a list of GIF categories associated with the provided type.
 		///     Each category will include a corresponding search URL to be used if the user clicks on the category.
 		///     The search URL will include the apikey, anonymous id, and locale that were used on the original call to the
@@ -500,10 +517,6 @@ namespace TenorSharp
 			{
 				var error = JsonConvert.DeserializeObject<HttpError>(result);
 				throw new TenorException(error.Error, e, error.Code);
-			}
-			catch (Exception e)
-			{
-				throw new TenorException(e.Message, e, e.HResult);
 			}
 		}
 
