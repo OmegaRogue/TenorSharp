@@ -88,7 +88,7 @@ namespace TenorSharp
 			Locale        locale        = null,
 			AspectRatio   arRange       = AspectRatio.all,
 			ContentFilter contentFilter = ContentFilter.off,
-			MediaFilter   mediaFilter0  = MediaFilter.off,
+			MediaFilter   mediaFilter   = MediaFilter.off,
 			string        anonId        = null,
 			RestClient    testClient    = null
 		)
@@ -98,7 +98,7 @@ namespace TenorSharp
 
 			_arRange       = arRange;
 			_contentFilter = contentFilter;
-			_mediaFilter   = mediaFilter0;
+			_mediaFilter   = mediaFilter;
 			_apiKey        = apiKey;
 
 			_anonId = anonId;
