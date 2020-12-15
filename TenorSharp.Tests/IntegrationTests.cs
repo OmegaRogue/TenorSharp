@@ -331,12 +331,12 @@ namespace TenorSharp.Tests
 		}
 
 		[Theory]
-		[InlineData("test", 50, 0)]
-		[InlineData("",     50, 0)]
-		[InlineData("null", 50, 0)]
-		[InlineData("test", 50, 1)]
-		[InlineData("test", 51, 0)]
-		[InlineData("test", 0,  0)]
+		[InlineData("test", 50, 0, Skip = "Pending Merge of Sticker API Feature")]
+		[InlineData("",     50, 0, Skip = "Pending Merge of Sticker API Feature")]
+		[InlineData("null", 50, 0, Skip = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 50, 1, Skip = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 51, 0, Skip = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 0,  0, Skip = "Pending Merge of Sticker API Feature")]
 		public void TestGetRandomGifsInt(string q, int limit, int pos)
 		{
 			try
@@ -358,11 +358,11 @@ namespace TenorSharp.Tests
 		}
 
 		[Theory]
-		[InlineData("test", 50, "0")]
-		[InlineData("test", 50, "")]
-		[InlineData("test", 50, "0.5")]
-		[InlineData("test", 50, "null")]
-		[InlineData("test", 50, null)]
+		[InlineData("test", 50, "0", Skip    = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 50, "", Skip     = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 50, "0.5", Skip  = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 50, "null", Skip = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 50, null, Skip   = "Pending Merge of Sticker API Feature")]
 		public void TestGetRandomGifsString(string q, int limit, string pos)
 		{
 			try
