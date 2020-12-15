@@ -19,7 +19,7 @@ namespace TenorSharp.SearchResults
 		///     further results.
 		/// </summary>
 		[JsonProperty("next", Required = Required.Always)]
-		public int NextGifs { get; set; }
+		public string NextGifs { get; set; }
 
 		/// <summary>
 		///     the most relevant GIFs for the requested search term - Sorted by relevancy Rank
