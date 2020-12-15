@@ -10,6 +10,7 @@ using Type = TenorSharp.Enums.Type;
 
 namespace TenorSharp.Tests
 {
+	[Collection("Integration Tests")]
 	public class IntegrationTests
 	{
 		private const           string Chars  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
