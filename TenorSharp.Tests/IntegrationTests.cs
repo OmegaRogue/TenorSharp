@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 
 using TenorSharp.Enums;
 
@@ -12,10 +11,16 @@ namespace TenorSharp.Tests
 {
 	public class IntegrationTests
 	{
-		private const           string      Chars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		private static readonly Random      Random  = new();
-		private static readonly string      ApiKey  = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
-		private readonly        TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic);
+		private const           string Chars  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		private static readonly string ApiKey = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
+
+		private readonly TenorClient _client =
+			new(ApiKey,
+				new Locale("en_US"),
+				AspectRatio.all,
+				ContentFilter.medium,
+				MediaFilter.basic,
+				"ecb8d811a40547cf81e8db1014823e30");
 
 
 		private readonly ITestOutputHelper _testOutputHelper;
@@ -25,35 +30,16 @@ namespace TenorSharp.Tests
 			_testOutputHelper = testOutputHelper;
 		}
 
-		private static string RndString(int len)
+		[Theory]
+		[InlineData("test", 50, 0)]
+		public void TestSearch(string q, int limit, int pos)
 		{
-			return new(Enumerable.Range(1, len).Select(_ => Chars[Random.Next(Chars.Length)]).ToArray());
-		}
-
-		private static string RndLenString()
-		{
-			var len = Random.Next();
-			return RndString(len);
-		}
-
-		[Fact]
-		public void TestSearch()
-		{
-			var anonId = RndString(18);
-			var q      = RndString(10);
-			var limit  = Random.Next(1, 50);
-			var pos    = Random.Next();
 			try
 			{
-				_client.NewSession(anonId);
 				_client.Search(q, limit, pos);
 			}
 			catch (TenorException e)
 			{
-				_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-											$"q: {q}\n"           +
-											$"limit: {limit}\n"   +
-											$"pos: {pos}");
 				_testOutputHelper.WriteLine(e.ToString());
 				throw;
 			}
@@ -64,7 +50,6 @@ namespace TenorSharp.Tests
 		{
 			try
 			{
-				_client.NewSession(RndString(18));
 				_client.Trending();
 			}
 			catch (TenorException e)
@@ -74,13 +59,15 @@ namespace TenorSharp.Tests
 			}
 		}
 
-		[Fact]
-		public void TestCategoriesEmoji()
+		[Theory]
+		[InlineData(Type.emoji)]
+		[InlineData(Type.trending)]
+		[InlineData(Type.featured)]
+		public void TestCategories(Type type)
 		{
 			try
 			{
-				_client.NewSession(RndString(18));
-				_client.Categories(Type.emoji);
+				_client.Categories(type);
 			}
 			catch (TenorException e)
 			{
@@ -89,13 +76,13 @@ namespace TenorSharp.Tests
 			}
 		}
 
-		[Fact]
-		public void TestCategoriesFeatured()
+		[Theory]
+		[InlineData("test", 50)]
+		public void TestAutoComplete(string q, int limit)
 		{
 			try
 			{
-				_client.NewSession(RndString(18));
-				_client.Categories();
+				_client.AutoComplete(q, limit);
 			}
 			catch (TenorException e)
 			{
@@ -104,13 +91,13 @@ namespace TenorSharp.Tests
 			}
 		}
 
-		[Fact]
-		public void TestCategoriesTrending()
+		[Theory]
+		[InlineData(50, 0, new[] {"17599391", "12846096", "8766184", "8766189"})]
+		public void TestGetGifs(int limit, int pos, string[] ids)
 		{
 			try
 			{
-				_client.NewSession(RndString(18));
-				_client.Categories(Type.trending);
+				_client.GetGifs(limit, pos, ids);
 			}
 			catch (TenorException e)
 			{
@@ -119,13 +106,13 @@ namespace TenorSharp.Tests
 			}
 		}
 
-		[Fact]
-		public void TestAutoComplete()
+		[Theory]
+		[InlineData("17599391", "test")]
+		public void TestRegisterShare(string id, string q)
 		{
 			try
 			{
-				_client.NewSession(RndString(18));
-				_client.AutoComplete(RndString(10), Random.Next(50));
+				_client.RegisterShare(id, q);
 			}
 			catch (TenorException e)
 			{
@@ -134,57 +121,12 @@ namespace TenorSharp.Tests
 			}
 		}
 
-		[Fact]
-		public void TestGetGifs()
+		[Theory]
+		[InlineData("test", 50)]
+		public void TestSearchSuggestions(string q, int limit)
 		{
-			var anonId = RndString(18);
-			var limit  = Random.Next(1, 50);
-			var pos    = Random.Next(10);
 			try
 			{
-				_client.NewSession(anonId);
-				var result = _client.Search("test", limit, pos);
-
-				_client.GetGifs(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
-		}
-
-		[Fact]
-		public void TestRegisterShare()
-		{
-			var anonId = RndString(18);
-			var limit  = Random.Next(1, 50);
-			var pos    = Random.Next(10);
-			try
-			{
-				_client.NewSession(anonId);
-				var result = _client.Search("test", limit, pos);
-				var id     = result.GifResults.First().Id;
-
-				_client.RegisterShare(id, "test");
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
-		}
-
-		[Fact]
-		public void TestSearchSuggestions()
-		{
-			var anonId = RndString(18);
-			var q      = RndString(10);
-			var limit  = Random.Next(1, 50);
-			try
-			{
-				_client.NewSession(anonId);
-
 				_client.SearchSuggestions(q, limit);
 			}
 			catch (TenorException e)
@@ -194,44 +136,31 @@ namespace TenorSharp.Tests
 			}
 		}
 
-		[Fact]
-		public void TestTrendingTerms()
+		[Theory]
+		[InlineData(50)]
+		public void TestTrendingTerms(int limit)
 		{
-			var anonId = RndString(18);
-			var limit  = Random.Next(1, 50);
 			try
 			{
-				_client.NewSession(anonId);
-
 				_client.TrendingTerms(limit);
 			}
 			catch (TenorException e)
 			{
-				_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-											$"limit: {limit}");
 				_testOutputHelper.WriteLine(e.ToString());
 				throw;
 			}
 		}
 
-		[Fact]
-		public void TestGetRandomGifs()
+		[Theory]
+		[InlineData("test", 50, 0)]
+		public void TestGetRandomGifs(string q, int limit, int pos)
 		{
-			var anonId = RndString(18);
-			var q      = RndString(10);
-			var limit  = Random.Next(1, 50);
-			var pos    = Random.Next(10);
 			try
 			{
-				_client.NewSession(anonId);
 				_client.GetRandomGifs(q, limit, pos);
 			}
 			catch (TenorException e)
 			{
-				_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-											$"q: {q}\n"           +
-											$"limit: {limit}\n"   +
-											$"pos: {pos}");
 				_testOutputHelper.WriteLine(e.ToString());
 
 				throw;
