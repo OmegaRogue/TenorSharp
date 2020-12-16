@@ -133,7 +133,7 @@ namespace TenorSharp
 		/// </param>
 		/// <returns>a Tenor Gif Response</returns>
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-		public Gif Search(string q, int limit = 20, string pos = "0")
+		public Gif Search(string q, int limit = 20, string pos = "0", bool stickers = false)
 		{
 			_searchRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
 						  .AddOrUpdateParameter("limit",         limit,          ParameterType.QueryString)
@@ -143,8 +143,11 @@ namespace TenorSharp
 						  .AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
 			if (_anonId != null)
 				_searchRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-			if (_mediaFilter != MediaFilter.off)
+			if (_mediaFilter != MediaFilter.off && !stickers)
 				_searchRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
+
+			if (stickers)
+				_searchRequest.AddQueryParameter("searchfilter", "sticker");
 
 
 			var result = _client.Execute(_searchRequest).Content;
@@ -164,10 +167,21 @@ namespace TenorSharp
 			}
 		}
 
-		/// <inheritdoc cref="Search(string,int,string)" />
-		public Gif Search(string q, int limit = 20, int pos = 0)
+
+		/// <inheritdoc cref="Search(string,int,string, bool)" />
+		public Gif Search(string q, int limit = 20, int pos = 0, bool stickers = false)
 		{
 			return Search(q, limit, pos.ToString());
+		}
+
+		public Gif SearchStickers(string q, int limit = 20, int pos = 0)
+		{
+			return Search(q, limit, pos, true);
+		}
+
+		public Gif SearchStickers(string q, int limit = 20, string pos = "0")
+		{
+			return Search(q, limit, pos, true);
 		}
 
 		/// <summary>
@@ -182,7 +196,7 @@ namespace TenorSharp
 		/// </param>
 		/// <returns>a Tenor Gif Response</returns>
 		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-		public Gif Trending(int limit = 20, string pos = "0")
+		public Gif Trending(int limit = 20, string pos = "0", bool stickers = false)
 		{
 			_trendingRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
 							.AddOrUpdateParameter("pos",           pos,            ParameterType.QueryString)
@@ -191,8 +205,12 @@ namespace TenorSharp
 							.AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
 			if (_anonId != null)
 				_trendingRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-			if (_mediaFilter != MediaFilter.off)
+			if (_mediaFilter != MediaFilter.off && !stickers)
 				_trendingRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
+
+			if (stickers)
+				_searchRequest.AddQueryParameter("searchfilter", "sticker");
+
 			var result = _client.Execute(_trendingRequest).Content;
 
 			try
@@ -210,10 +228,22 @@ namespace TenorSharp
 			}
 		}
 
-		/// <inheritdoc cref="Trending(int,string)" />
-		public Gif Trending(int limit = 20, int pos = 0)
+
+		/// <inheritdoc cref="Trending(int,string, bool)" />
+		public Gif Trending(int limit = 20, int pos = 0, bool stickers = false)
 		{
 			return Trending(limit, pos.ToString());
+		}
+
+
+		public Gif TrendingStickers(int limit = 20, int pos = 0)
+		{
+			return Trending(limit, pos, true);
+		}
+
+		public Gif TrendingStickers(int limit = 20, string pos = "0")
+		{
+			return Trending(limit, pos, true);
 		}
 
 		/// <summary>

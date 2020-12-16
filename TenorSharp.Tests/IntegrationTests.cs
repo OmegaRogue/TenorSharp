@@ -89,6 +89,63 @@ namespace TenorSharp.Tests
 		}
 
 		[Theory]
+		[InlineData("test",      50, 0)]
+		[InlineData("",          50, 0)]
+		[InlineData("dehfghfgh", 50, 0)]
+		[InlineData("test",      50, 1)]
+		[InlineData("test",      51, 0)]
+		[InlineData("test",      0,  0)]
+		[InlineData(null,        0,  0)]
+		public void TestSearchStickersInt(string q, int limit, int pos)
+		{
+			try
+			{
+				_client.SearchStickers(q, limit, pos);
+			}
+			catch (TenorException e)
+			{
+				if (limit > 50 || limit < 1)
+				{
+					Assert.Equal("Limit must be between 1 and 50.", e.Message);
+				}
+				else
+				{
+					_testOutputHelper.WriteLine(e.ToString());
+					throw;
+				}
+			}
+		}
+
+		[Theory]
+		[InlineData("test", 50, "")]
+		[InlineData("test", 50, "null")]
+		[InlineData("test", 50, null)]
+		[InlineData("test", 50, "0.5")]
+		public void TestSearchStickersString(string q, int limit, string pos)
+		{
+			try
+			{
+				_client.SearchStickers(q, limit, pos);
+			}
+			catch (TenorException e)
+			{
+				if (limit > 50 || limit < 1)
+				{
+					Assert.Equal("Limit must be between 1 and 50.", e.Message);
+				}
+				else if (!float.TryParse(pos, out var _))
+				{
+					Assert.Equal("Invalid value for parameter \"pos\"", e.Message);
+				}
+				else
+				{
+					_testOutputHelper.WriteLine(e.ToString());
+					throw;
+				}
+			}
+		}
+
+		[Theory]
 		[InlineData(50, 0, new[] {"17599391", "12846096", "8766184", "8766189"})]
 		[InlineData(50, 1, new[] {"17599391", "12846096", "8766184", "8766189"})]
 		[InlineData(51, 0, new[] {"17599391", "12846096", "8766184", "8766189"})]
@@ -204,6 +261,62 @@ namespace TenorSharp.Tests
 				}
 			}
 		}
+
+		[Theory]
+		[InlineData(20, 0)]
+		[InlineData(20, 1)]
+		[InlineData(51, 0)]
+		[InlineData(0,  0)]
+		public void TestTrendingStickersInt(int limit, int pos)
+		{
+			try
+			{
+				_client.TrendingStickers(limit, pos);
+			}
+			catch (TenorException e)
+			{
+				if (limit > 50 || limit < 1)
+				{
+					Assert.Equal("Limit must be between 1 and 50.", e.Message);
+				}
+				else
+				{
+					_testOutputHelper.WriteLine(e.ToString());
+					throw;
+				}
+			}
+		}
+
+		[Theory]
+		[InlineData(20, "0")]
+		[InlineData(20, "")]
+		[InlineData(20, "null")]
+		[InlineData(20, null)]
+		[InlineData(20, "0.5")]
+		public void TestTrendingStickersString(int limit, string pos)
+		{
+			try
+			{
+				_client.TrendingStickers(limit, pos);
+			}
+			catch (TenorException e)
+			{
+				if (limit > 50 || limit < 1)
+				{
+					Assert.Equal("Limit must be between 1 and 50.", e.Message);
+				}
+				else if (!float.TryParse(pos, out var _))
+				{
+					Assert.Equal("Invalid value for parameter \"pos\"", e.Message);
+				}
+				else
+				{
+					_testOutputHelper.WriteLine(e.ToString());
+					throw;
+				}
+			}
+		}
+
 
 		[Theory]
 		[InlineData("test", 50)]
@@ -331,12 +444,12 @@ namespace TenorSharp.Tests
 		}
 
 		[Theory]
-		[InlineData("test", 50, 0, Skip = "Pending Merge of Sticker API Feature")]
-		[InlineData("",     50, 0, Skip = "Pending Merge of Sticker API Feature")]
-		[InlineData("null", 50, 0, Skip = "Pending Merge of Sticker API Feature")]
-		[InlineData("test", 50, 1, Skip = "Pending Merge of Sticker API Feature")]
-		[InlineData("test", 51, 0, Skip = "Pending Merge of Sticker API Feature")]
-		[InlineData("test", 0,  0, Skip = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 50, 0)]
+		[InlineData("",     50, 0)]
+		[InlineData("null", 50, 0)]
+		[InlineData("test", 50, 1)]
+		[InlineData("test", 51, 0)]
+		[InlineData("test", 0,  0)]
 		public void TestGetRandomGifsInt(string q, int limit, int pos)
 		{
 			try
@@ -358,11 +471,11 @@ namespace TenorSharp.Tests
 		}
 
 		[Theory]
-		[InlineData("test", 50, "0", Skip    = "Pending Merge of Sticker API Feature")]
-		[InlineData("test", 50, "", Skip     = "Pending Merge of Sticker API Feature")]
-		[InlineData("test", 50, "0.5", Skip  = "Pending Merge of Sticker API Feature")]
-		[InlineData("test", 50, "null", Skip = "Pending Merge of Sticker API Feature")]
-		[InlineData("test", 50, null, Skip   = "Pending Merge of Sticker API Feature")]
+		[InlineData("test", 50, "0")]
+		[InlineData("test", 50, "")]
+		[InlineData("test", 50, "0.5")]
+		[InlineData("test", 50, "null")]
+		[InlineData("test", 50, null)]
 		public void TestGetRandomGifsString(string q, int limit, string pos)
 		{
 			try
