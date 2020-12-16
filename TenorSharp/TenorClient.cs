@@ -164,19 +164,7 @@ namespace TenorSharp
 			}
 		}
 
-		/// <summary>
-		///     Get a json object containing a list of the most relevant GIFs for a given search term(s), category(ies), emoji(s),
-		///     or any combination thereof.
-		/// </summary>
-		/// <param name="q">a search string</param>
-		/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
-		/// <param name="pos">
-		///     get results starting at position "value".
-		///     Use a non-zero "next" value returned by API results to get the next set of results.
-		///     pos is not an index and may be an integer, float, or string
-		/// </param>
-		/// <returns>a Tenor Gif Response</returns>
-		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+		/// <inheritdoc cref="Search(string,int,string)" />
 		public Gif Search(string q, int limit = 20, int pos = 0)
 		{
 			return Search(q, limit, pos.ToString());
@@ -222,18 +210,7 @@ namespace TenorSharp
 			}
 		}
 
-		/// <summary>
-		///     Get a json object containing a list of the current global trending GIFs. The trending stream is updated regularly
-		///     throughout the day.
-		/// </summary>
-		/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
-		/// <param name="pos">
-		///     get results starting at position "value".
-		///     Use a non-zero "next" value returned by API results to get the next set of results.
-		///     pos is not an index and may be an integer, float, or string
-		/// </param>
-		/// <returns>a Tenor Gif Response</returns>
-		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+		/// <inheritdoc cref="Trending(int,string)" />
 		public Gif Trending(int limit = 20, int pos = 0)
 		{
 			return Trending(limit, pos.ToString());
@@ -436,18 +413,7 @@ namespace TenorSharp
 			}
 		}
 
-		/// <summary>
-		///     Get the GIF(s) for the corresponding id(s)
-		/// </summary>
-		/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
-		/// <param name="pos">
-		///     get results starting at position "value".
-		///     Use a non-zero "next" value returned by API results to get the next set of results.
-		///     pos is not an index and may be an integer, float, or string
-		/// </param>
-		/// <param name="ids">a comma separated list of GIF IDs (max: 50)</param>
-		/// <returns>a Tenor Gif Response</returns>
-		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+		/// <inheritdoc cref="GetGifs(int,string,string[])" />
 		public Gif GetGifs(
 			int             limit = 20,
 			int             pos   = 0,
@@ -520,19 +486,7 @@ namespace TenorSharp
 			}
 		}
 
-		/// <summary>
-		///     Get a randomized list of GIFs for a given search term. This differs from the search endpoint which returns a rank
-		///     ordered list of GIFs for a given search term.
-		/// </summary>
-		/// <param name="q">a search string</param>
-		/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
-		/// <param name="pos">
-		///     get results starting at position "value".
-		///     Use a non-zero "next" value returned by API results to get the next set of results.
-		///     pos is not an index and may be an integer, float, or string
-		/// </param>
-		/// <returns>a Tenor Gif Response</returns>
-		/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+		/// <inheritdoc cref="GetRandomGifs(string,int,string)" />
 		public Gif GetRandomGifs(string q, int limit = 20, int pos = 0)
 		{
 			return GetRandomGifs(q, limit, pos.ToString());
