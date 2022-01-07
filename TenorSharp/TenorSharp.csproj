@@ -14,6 +14,7 @@
         <PackageTags>Tenor, Tenor-API</PackageTags>
         <RootNamespace>TenorSharp</RootNamespace>
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+        
         <PackageReleaseNotes>Update to dotnet 5 and dotnet 6
 Add Async Methods
 Update Dependencies</PackageReleaseNotes>
