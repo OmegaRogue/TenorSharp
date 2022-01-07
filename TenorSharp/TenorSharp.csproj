@@ -21,7 +21,7 @@ Update Dependencies</PackageReleaseNotes>
         <PackageVersion>1.6.1</PackageVersion>
         <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
         <LangVersion>10</LangVersion>
-        <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.html</PackageLicenseUrl>
+        <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
