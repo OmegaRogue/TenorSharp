@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 using TenorSharp.Enums;
 
@@ -8,248 +9,242 @@ using Xunit.Abstractions;
 
 using Type = TenorSharp.Enums.Type;
 
-namespace TenorSharp.Tests
+namespace TenorSharp.Tests;
+
+public class IntegrationTests
 {
-	public class IntegrationTests
+	private const           string      Chars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	private static readonly Random      Random  = new();
+	private static readonly string      ApiKey  = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
+	private readonly        TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic);
+
+
+	private readonly ITestOutputHelper _testOutputHelper;
+
+	public IntegrationTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+
+	private static string RndString(int len)
+		=> new(Enumerable.Range(1, len).Select(_ => Chars[Random.Next(Chars.Length)]).ToArray());
+
+	private static string RndLenString()
 	{
-		private const           string      Chars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		private static readonly Random      Random  = new();
-		private static readonly string      ApiKey  = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
-		private readonly        TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic);
+		var len = Random.Next();
+		return RndString(len);
+	}
 
-
-		private readonly ITestOutputHelper _testOutputHelper;
-
-		public IntegrationTests(ITestOutputHelper testOutputHelper)
+	[Fact]
+	public void TestSearch()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next();
+		try
 		{
-			_testOutputHelper = testOutputHelper;
+			_client.NewSession(anonId);
+			_client.Search(q, limit, pos);
 		}
-
-		private static string RndString(int len)
+		catch (TenorException e)
 		{
-			return new(Enumerable.Range(1, len).Select(_ => Chars[Random.Next(Chars.Length)]).ToArray());
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"q: {q}\n"           +
+										$"limit: {limit}\n"   +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		private static string RndLenString()
+	[Fact]
+	public void TestTrending()
+	{
+		try
 		{
-			var len = Random.Next();
-			return RndString(len);
+			_client.NewSession(RndString(18));
+			_client.Trending();
 		}
-
-		[Fact]
-		public void TestSearch()
+		catch (TenorException e)
 		{
-			var anonId = RndString(18);
-			var q      = RndString(10);
-			var limit  = Random.Next(1, 50);
-			var pos    = Random.Next();
-			try
-			{
-				_client.NewSession(anonId);
-				_client.Search(q, limit, pos);
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-											$"q: {q}\n"           +
-											$"limit: {limit}\n"   +
-											$"pos: {pos}");
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Fact]
-		public void TestTrending()
+	[Fact]
+	public void TestCategoriesEmoji()
+	{
+		try
 		{
-			try
-			{
-				_client.NewSession(RndString(18));
-				_client.Trending();
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_client.NewSession(RndString(18));
+			_client.Categories(Type.emoji);
 		}
-
-		[Fact]
-		public void TestCategoriesEmoji()
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.NewSession(RndString(18));
-				_client.Categories(Type.emoji);
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Fact]
-		public void TestCategoriesFeatured()
+	[Fact]
+	public void TestCategoriesFeatured()
+	{
+		try
 		{
-			try
-			{
-				_client.NewSession(RndString(18));
-				_client.Categories();
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_client.NewSession(RndString(18));
+			_client.Categories();
 		}
-
-		[Fact]
-		public void TestCategoriesTrending()
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.NewSession(RndString(18));
-				_client.Categories(Type.trending);
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Fact]
-		public void TestAutoComplete()
+	[Fact]
+	public void TestCategoriesTrending()
+	{
+		try
 		{
-			try
-			{
-				_client.NewSession(RndString(18));
-				_client.AutoComplete(RndString(10), Random.Next(50));
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_client.NewSession(RndString(18));
+			_client.Categories(Type.trending);
 		}
-
-		[Fact]
-		public void TestGetGifs()
+		catch (TenorException e)
 		{
-			var anonId = RndString(18);
-			var limit  = Random.Next(1, 50);
-			var pos    = Random.Next(10);
-			try
-			{
-				_client.NewSession(anonId);
-				var result = _client.Search("test", limit, pos);
-
-				_client.GetGifs(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Fact]
-		public void TestRegisterShare()
+	[Fact]
+	public void TestAutoComplete()
+	{
+		try
 		{
-			var anonId = RndString(18);
-			var limit  = Random.Next(1, 50);
-			var pos    = Random.Next(10);
-			try
-			{
-				_client.NewSession(anonId);
-				var result = _client.Search("test", limit, pos);
-				var id     = result.GifResults.First().Id;
-
-				_client.RegisterShare(id, "test");
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_client.NewSession(RndString(18));
+			_client.AutoComplete(RndString(10), Random.Next(50));
 		}
-
-		[Fact]
-		public void TestSearchSuggestions()
+		catch (TenorException e)
 		{
-			var anonId = RndString(18);
-			var q      = RndString(10);
-			var limit  = Random.Next(1, 50);
-			try
-			{
-				_client.NewSession(anonId);
-
-				_client.SearchSuggestions(q, limit);
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Fact]
-		public void TestTrendingTerms()
+	[Fact]
+	public async Task TestGetGifs()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
 		{
-			var anonId = RndString(18);
-			var limit  = Random.Next(1, 50);
-			try
-			{
-				_client.NewSession(anonId);
+			_client.NewSession(anonId);
+			var result = await _client.Search("test", limit, pos);
 
-				_client.TrendingTerms(limit);
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-											$"limit: {limit}");
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			await _client.GetGifs(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
 		}
-
-		[Fact]
-		public void TestGetRandomGifs()
+		catch (TenorException e)
 		{
-			var anonId = RndString(18);
-			var q      = RndString(10);
-			var limit  = Random.Next(1, 50);
-			var pos    = Random.Next(10);
-			try
-			{
-				_client.NewSession(anonId);
-				_client.GetRandomGifs(q, limit, pos);
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-											$"q: {q}\n"           +
-											$"limit: {limit}\n"   +
-											$"pos: {pos}");
-				_testOutputHelper.WriteLine(e.ToString());
-
-				throw;
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Fact]
-		public void TestGetNewAnonId()
+	[Fact]
+	public async Task TestRegisterShare()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
 		{
-			try
-			{
-				_client.GetNewAnonId();
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_client.NewSession(anonId);
+			var result = await _client.Search("test", limit, pos);
+			var id     = result.GifResults.First().Id;
+
+			await _client.RegisterShare(id, "test");
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestSearchSuggestions()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		try
+		{
+			_client.NewSession(anonId);
+
+			_client.SearchSuggestions(q, limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestTrendingTerms()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		try
+		{
+			_client.NewSession(anonId);
+
+			_client.TrendingTerms(limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"limit: {limit}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestGetRandomGifs()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			_client.GetRandomGifs(q, limit, pos);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"q: {q}\n"           +
+										$"limit: {limit}\n"   +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestGetNewAnonId()
+	{
+		try
+		{
+			_client.GetNewAnonId();
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
 	}
 }

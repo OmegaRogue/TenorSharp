@@ -1,10 +1,9 @@
-namespace TenorSharp.Enums
+namespace TenorSharp.Enums;
+
+public enum SearchTypes
 {
-	public enum SearchTypes
-	{
-		search,
-		trending,
-		getGifs,
-		getRandom
-	}
+	search,
+	trending,
+	getGifs,
+	getRandom
 }

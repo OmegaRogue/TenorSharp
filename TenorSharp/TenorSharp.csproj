@@ -17,13 +17,13 @@
         <PackageReleaseNotes>Update to dotnetcore 3.1 and dotnet 5</PackageReleaseNotes>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>1.5.1</PackageVersion>
-        <TargetFrameworks>netcoreapp3.1;netcoreapp5.0</TargetFrameworks>
-        <LangVersion>9</LangVersion>
+        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
-        <PackageReference Include="RestSharp" Version="106.11.7"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="RestSharp" Version="107.0.1" />
     </ItemGroup>
 
 </Project>
