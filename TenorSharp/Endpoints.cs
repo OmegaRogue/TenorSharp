@@ -29,7 +29,7 @@ public static class Endpoints
 
 	/// <summary>
 	///     Get a json object containing a list of alternative search terms given a search term.
-	///     Search suggestions helps a user narrow their search or discover related search terms to find a more precise GIF.
+	///     SearchAsync suggestions helps a user narrow their search or discover related search terms to find a more precise GIF.
 	///     Results are returned in order of what is most likely to drive a share for a given term, based on historic user
 	///     search and share behavior.
 	/// </summary>

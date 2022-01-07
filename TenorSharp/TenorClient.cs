@@ -120,7 +120,16 @@ public class TenorClient
 	}
 
 
-	//	
+	/// <inheritdoc cref="SearchAsync(string,int,int)"/>
+	public Gif Search(string q, int limit = 20, int pos = 0) => Task.Run(() => SearchAsync(q, limit, pos)).GetAwaiter().GetResult();
+	
+	/// <inheritdoc cref="SearchAsync(string,int,string)"/>
+	public async Task<Gif> SearchAsync(string q, int limit = 20, int pos = 0)
+		=> await SearchAsync(q, limit, pos.ToString());
+	
+	/// <inheritdoc cref="SearchAsync(string,int,string)"/>
+	public Gif Search(string q, int limit = 20, string pos = "0") => Task.Run(() => SearchAsync(q, limit, pos)).GetAwaiter().GetResult();
+	
 	/// <summary>
 	///     Get a json object containing a list of the most relevant GIFs for a given search term(s), category(ies), emoji(s),
 	///     or any combination thereof.
@@ -134,7 +143,7 @@ public class TenorClient
 	/// </param>
 	/// <returns>a Tenor Gif Response</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Gif> Search(string q, int limit = 20, string pos = "0")
+	public async Task<Gif> SearchAsync(string q, int limit = 20, string pos = "0")
 	{
 		_searchRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
 					  .AddOrUpdateParameter("limit",         limit,          ParameterType.QueryString)
@@ -173,21 +182,22 @@ public class TenorClient
 			throw new TenorException(e.Message, e, e.HResult);
 		}
 	}
+	
+	/// <inheritdoc cref="TrendingAsync(int, int)"/>
+	public async Task<Gif> TrendingAsync() => await TrendingAsync(20, 0);
 
-	/// <summary>
-	///     Get a json object containing a list of the most relevant GIFs for a given search term(s), category(ies), emoji(s),
-	///     or any combination thereof.
-	/// </summary>
-	/// <param name="q">a search string</param>
-	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
-	/// <param name="pos">
-	///     get results starting at position "value".
-	///     Use a non-zero "next" value returned by API results to get the next set of results.
-	///     pos is not an index and may be an integer, float, or string
-	/// </param>
-	/// <returns>a Tenor Gif Response</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Gif> Search(string q, int limit = 20, int pos = 0) => await Search(q, limit, pos.ToString());
+	/// <inheritdoc cref="Trending(int, int)"/>
+	public Gif Trending() => Trending(20, 0);
+
+	/// <inheritdoc cref="TrendingAsync(int, int)"/>
+	public Gif Trending(int limit = 20, int pos = 0) => Task.Run(() => TrendingAsync(limit, pos)).GetAwaiter().GetResult();
+	
+	/// <inheritdoc cref="TrendingAsync(int,string)"/>
+	public async Task<Gif> TrendingAsync(int limit = 20, int pos = 0)
+		=> await TrendingAsync(limit, pos.ToString());
+	
+	/// <inheritdoc cref="TrendingAsync(int, string)"/>
+	public Gif Trending(int limit = 20, string pos = "0") => Task.Run(() => TrendingAsync(limit, pos)).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of the current global trending GIFs. The trending stream is updated regularly
@@ -201,7 +211,7 @@ public class TenorClient
 	/// </param>
 	/// <returns>a Tenor Gif Response</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Gif> Trending(int limit = 20, string pos = "0")
+	public async Task<Gif> TrendingAsync(int limit = 20, string pos = "0")
 	{
 		_trendingRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
 						.AddOrUpdateParameter("pos",           pos,            ParameterType.QueryString)
@@ -237,6 +247,9 @@ public class TenorClient
 			throw new TenorException(e.Message, e, e.HResult);
 		}
 	}
+	
+	/// <inheritdoc cref="CategoriesAsync"/>
+	public Category Categories(Type type = Type.featured) => Task.Run(() => CategoriesAsync(type)).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of GIF categories associated with the provided type.
@@ -247,7 +260,7 @@ public class TenorClient
 	/// <param name="type">determines the type of categories returned</param>
 	/// <returns>a Tenor Category Response</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Category> Categories(Type type = Type.featured)
+	public async Task<Category> CategoriesAsync(Type type = Type.featured)
 	{
 		_categoryRequest.AddOrUpdateParameter("Type", type, ParameterType.QueryString)
 						.AddOrUpdateParameter("contentfilter", _contentFilter, ParameterType.QueryString)
@@ -273,10 +286,13 @@ public class TenorClient
 			throw new TenorException(e.Message, e, e.HResult);
 		}
 	}
+	
+	/// <inheritdoc cref="SearchSuggestionsAsync"/>
+	public Terms SearchSuggestions(string q, int limit = 20) => Task.Run(() => SearchSuggestionsAsync(q, limit)).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of alternative search terms given a search term.
-	///     Search suggestions helps a user narrow their search or discover related search terms to find a more precise GIF.
+	///     SearchAsync suggestions helps a user narrow their search or discover related search terms to find a more precise GIF.
 	///     Results are returned in order of what is most likely to drive a share for a given term, based on historic user
 	///     search and share behavior.
 	/// </summary>
@@ -284,7 +300,7 @@ public class TenorClient
 	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
 	/// <returns>an Array of Search Terms</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Terms> SearchSuggestions(string q, int limit = 20)
+	public async Task<Terms> SearchSuggestionsAsync(string q, int limit = 20)
 	{
 		_suggestionRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
 						  .AddOrUpdateParameter("limit",  limit,   ParameterType.QueryString)
@@ -313,6 +329,9 @@ public class TenorClient
 			throw new TenorException(e.Message, e, e.HResult);
 		}
 	}
+	
+	/// <inheritdoc cref="AutoCompleteAsync"/>
+	public Terms AutoComplete(string q, int limit = 20) => Task.Run(() => AutoCompleteAsync(q, limit)).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of completed search terms given a partial search term.
@@ -322,7 +341,7 @@ public class TenorClient
 	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
 	/// <returns>an Array of Search Terms</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Terms> AutoComplete(string q, int limit = 20)
+	public async Task<Terms> AutoCompleteAsync(string q, int limit = 20)
 	{
 		_autocompleteRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
 							.AddOrUpdateParameter("limit",  limit,   ParameterType.QueryString)
@@ -350,6 +369,9 @@ public class TenorClient
 		}
 	}
 
+	/// <inheritdoc cref="TrendingTermsAsync"/>
+	public Terms TrendingTerms(int limit = 20) => Task.Run(() => TrendingTermsAsync(limit)).GetAwaiter().GetResult();
+
 	/// <summary>
 	///     Get a json object containing a list of the current trending search terms.
 	///     The list is updated Hourly by Tenor’s AI.
@@ -357,7 +379,8 @@ public class TenorClient
 	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
 	/// <returns>an Array of Search Terms</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Terms> TrendingTerms(int limit = 20)
+	/// <exception cref="Exception">thrown when the Tenor API returns Invalid Data</exception>
+	public async Task<Terms> TrendingTermsAsync(int limit = 20)
 	{
 		_trendingTermsRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
 							 .AddOrUpdateParameter("locale", _locale, ParameterType.QueryString);
@@ -385,6 +408,10 @@ public class TenorClient
 		}
 	}
 
+	/// <inheritdoc cref="RegisterShareAsync"/>
+	public string RegisterShare(string id, string q = null)
+		=> Task.Run(() => RegisterShareAsync(id, q)).GetAwaiter().GetResult();
+
 	/// <summary>
 	///     Register a user’s sharing of a GIF.
 	/// </summary>
@@ -392,7 +419,7 @@ public class TenorClient
 	/// <param name="q">The search string that lead to this share</param>
 	/// <returns>the Share Status</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<string> RegisterShare(string id, string q = null)
+	public async Task<string> RegisterShareAsync(string id, string q = null)
 	{
 		_shareRequest.AddOrUpdateParameter("id", id)
 					 .AddOrUpdateParameter("locale", _locale, ParameterType.QueryString);
@@ -423,6 +450,29 @@ public class TenorClient
 		}
 	}
 
+
+	/// <inheritdoc cref="GetGifsAsync(int,int,string[])"/>
+	public Gif GetGifs(
+		int             limit = 20,
+		int             pos   = 0,
+		params string[] ids
+	) => Task.Run(() => GetGifsAsync(limit, pos, ids)).GetAwaiter().GetResult();
+
+	/// <inheritdoc cref="GetGifsAsync(int,string,string[])"/>
+	public async Task<Gif> GetGifsAsync(
+		int             limit = 20,
+		int             pos   = 0,
+		params string[] ids
+	)
+		=> await GetGifsAsync(limit, pos.ToString(), ids);
+	
+	/// <inheritdoc cref="GetGifsAsync(int,string,string[])"/>
+	public Gif GetGifs(
+		int             limit = 20,
+		string          pos   = "0",
+		params string[] ids
+	) => Task.Run(() => GetGifsAsync(limit, pos, ids)).GetAwaiter().GetResult();
+
 	/// <summary>
 	///     Get the GIF(s) for the corresponding id(s)
 	/// </summary>
@@ -435,7 +485,7 @@ public class TenorClient
 	/// <param name="ids">a comma separated list of GIF IDs (max: 50)</param>
 	/// <returns>a Tenor Gif Response</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Gif> GetGifs(
+	public async Task<Gif> GetGifsAsync(
 		int             limit = 20,
 		string          pos   = "0",
 		params string[] ids
@@ -478,24 +528,11 @@ public class TenorClient
 		}
 	}
 
-	/// <summary>
-	///     Get the GIF(s) for the corresponding id(s)
-	/// </summary>
-	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
-	/// <param name="pos">
-	///     get results starting at position "value".
-	///     Use a non-zero "next" value returned by API results to get the next set of results.
-	///     pos is not an index and may be an integer, float, or string
-	/// </param>
-	/// <param name="ids">a comma separated list of GIF IDs (max: 50)</param>
-	/// <returns>a Tenor Gif Response</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Gif> GetGifs(
-		int             limit = 20,
-		int             pos   = 0,
-		params string[] ids
-	)
-		=> await GetGifs(limit, pos.ToString(), ids);
+	
+
+
+	/// <inheritdoc cref="GetNewAnonIdAsync"/>
+	public string GetNewAnonId() => Task.Run(GetNewAnonIdAsync).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get an anonymous ID for a new user.
@@ -504,7 +541,7 @@ public class TenorClient
 	/// </summary>
 	/// <returns>a Random AnonId</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<string> GetNewAnonId()
+	public async Task<string> GetNewAnonIdAsync()
 	{
 		var result  = await _client.ExecuteAsync(_anonIdRequest);
 		var content = result.Content;
@@ -525,6 +562,19 @@ public class TenorClient
 		}
 	}
 
+	
+	/// <inheritdoc cref="GetRandomGifsAsync(string,int,int)"/>
+	public Gif GetRandomGifs(string q, int limit = 20, int pos = 0)
+		=> Task.Run(() => GetRandomGifsAsync(q, limit, pos)).GetAwaiter().GetResult();
+
+	/// <inheritdoc cref="GetRandomGifsAsync(string,int,string)" />
+	public async Task<Gif> GetRandomGifsAsync(string q, int limit = 20, int pos = 0)
+		=> await GetRandomGifsAsync(q, limit, pos.ToString());
+
+	/// <inheritdoc cref="GetRandomGifsAsync(string,int,string)"/>
+	public Gif GetRandomGifs(string q, int limit = 20, string pos = "0")
+		=> Task.Run(() => GetRandomGifsAsync(q, limit, pos)).GetAwaiter().GetResult();
+
 	/// <summary>
 	///     Get a randomized list of GIFs for a given search term. This differs from the search endpoint which returns a rank
 	///     ordered list of GIFs for a given search term.
@@ -538,7 +588,7 @@ public class TenorClient
 	/// </param>
 	/// <returns>a Tenor Gif Response</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Gif> GetRandomGifs(string q, int limit = 20, string pos = "0")
+	public async Task<Gif> GetRandomGifsAsync(string q, int limit = 20, string pos = "0")
 	{
 		_rndGifRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString).AddOrUpdateParameter("limit", limit)
 					  .AddOrUpdateParameter("pos",           pos)
@@ -577,21 +627,8 @@ public class TenorClient
 		}
 	}
 
-	/// <summary>
-	///     Get a randomized list of GIFs for a given search term. This differs from the search endpoint which returns a rank
-	///     ordered list of GIFs for a given search term.
-	/// </summary>
-	/// <param name="q">a search string</param>
-	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
-	/// <param name="pos">
-	///     get results starting at position "value".
-	///     Use a non-zero "next" value returned by API results to get the next set of results.
-	///     pos is not an index and may be an integer, float, or string
-	/// </param>
-	/// <returns>a Tenor Gif Response</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	public async Task<Gif> GetRandomGifs(string q, int limit = 20, int pos = 0)
-		=> await GetRandomGifs(q, limit, pos.ToString());
+
+	
 
 
 	/// <summary>
@@ -651,14 +688,14 @@ public class TenorClient
 	/// </summary>
 	/// <param name="url">the URL</param>
 	/// <returns>the Stream</returns>
-	public Stream GetMediaStream(Uri url)
+	public static Stream GetMediaStream(Uri url)
 	{
 		var req    = WebRequest.Create(url);
 		var stream = req.GetResponse().GetResponseStream();
 		return stream;
 	}
 
-	public Stream GetMediaStream(string url) => GetMediaStream(new Uri(url));
+	public static Stream GetMediaStream(string url) => GetMediaStream(new Uri(url));
 
 
 	// .AddOrUpdateParameter("anon_id",       null,              ParameterType.QueryString)

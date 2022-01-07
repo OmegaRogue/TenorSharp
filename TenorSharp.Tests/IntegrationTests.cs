@@ -54,6 +54,28 @@ public class IntegrationTests
 			throw;
 		}
 	}
+	[Fact]
+	public async Task TestSearchAsync()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next();
+		try
+		{
+			_client.NewSession(anonId);
+			await _client.SearchAsync(q, limit, pos);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"q: {q}\n"           +
+										$"limit: {limit}\n"   +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
 
 	[Fact]
 	public void TestTrending()
@@ -62,6 +84,20 @@ public class IntegrationTests
 		{
 			_client.NewSession(RndString(18));
 			_client.Trending();
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	[Fact]
+	public async Task TestTrendingAsync()
+	{
+		try
+		{
+			_client.NewSession(RndString(18));
+			await _client.TrendingAsync();
 		}
 		catch (TenorException e)
 		{
@@ -84,6 +120,21 @@ public class IntegrationTests
 			throw;
 		}
 	}
+	
+	[Fact]
+	public async Task TestCategoriesEmojiAsync()
+	{
+		try
+		{
+			_client.NewSession(RndString(18));
+			await _client.CategoriesAsync(Type.emoji);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
 
 	[Fact]
 	public void TestCategoriesFeatured()
@@ -92,6 +143,21 @@ public class IntegrationTests
 		{
 			_client.NewSession(RndString(18));
 			_client.Categories();
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestCategoriesFeaturedAsync()
+	{
+		try
+		{
+			_client.NewSession(RndString(18));
+			await _client.CategoriesAsync();
 		}
 		catch (TenorException e)
 		{
@@ -114,6 +180,21 @@ public class IntegrationTests
 			throw;
 		}
 	}
+	
+	[Fact]
+	public async Task TestCategoriesTrendingAsync()
+	{
+		try
+		{
+			_client.NewSession(RndString(18));
+			await _client.CategoriesAsync(Type.trending);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
 
 	[Fact]
 	public void TestAutoComplete()
@@ -129,19 +210,14 @@ public class IntegrationTests
 			throw;
 		}
 	}
-
+	
 	[Fact]
-	public async Task TestGetGifs()
+	public async Task TestAutoCompleteAsync()
 	{
-		var anonId = RndString(18);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
-			var result = await _client.Search("test", limit, pos);
-
-			await _client.GetGifs(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
+			_client.NewSession(RndString(18));
+			await _client.AutoCompleteAsync(RndString(10), Random.Next(50));
 		}
 		catch (TenorException e)
 		{
@@ -151,7 +227,7 @@ public class IntegrationTests
 	}
 
 	[Fact]
-	public async Task TestRegisterShare()
+	public void TestGetGifs()
 	{
 		var anonId = RndString(18);
 		var limit  = Random.Next(1, 50);
@@ -159,10 +235,71 @@ public class IntegrationTests
 		try
 		{
 			_client.NewSession(anonId);
-			var result = await _client.Search("test", limit, pos);
+			var result = _client.Search("test", limit, pos);
+
+			_client.GetGifs(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestGetGifsAsync()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			var result = await _client.SearchAsync("test", limit, pos);
+
+			await _client.GetGifsAsync(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestRegisterShare()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			var result = _client.Search("test", limit, pos);
 			var id     = result.GifResults.First().Id;
 
-			await _client.RegisterShare(id, "test");
+			_client.RegisterShare(id, "test");
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestRegisterShareAsync()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			var result = await _client.SearchAsync("test", limit, pos);
+			var id     = result.GifResults.First().Id;
+
+			await _client.RegisterShareAsync(id, "test");
 		}
 		catch (TenorException e)
 		{
@@ -189,6 +326,25 @@ public class IntegrationTests
 			throw;
 		}
 	}
+	
+	[Fact]
+	public async Task TestSearchSuggestionsAsync()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		try
+		{
+			_client.NewSession(anonId);
+
+			await _client.SearchSuggestionsAsync(q, limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
 
 	[Fact]
 	public void TestTrendingTerms()
@@ -200,6 +356,26 @@ public class IntegrationTests
 			_client.NewSession(anonId);
 
 			_client.TrendingTerms(limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"limit: {limit}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestTrendingTermsAsync()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		try
+		{
+			_client.NewSession(anonId);
+
+			await _client.TrendingTermsAsync(limit);
 		}
 		catch (TenorException e)
 		{
@@ -233,6 +409,30 @@ public class IntegrationTests
 			throw;
 		}
 	}
+	
+	[Fact]
+	public async Task TestGetRandomGifsAsync()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			await _client.GetRandomGifsAsync(q, limit, pos);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"q: {q}\n"           +
+										$"limit: {limit}\n"   +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+
+			throw;
+		}
+	}
 
 	[Fact]
 	public void TestGetNewAnonId()
@@ -240,6 +440,20 @@ public class IntegrationTests
 		try
 		{
 			_client.GetNewAnonId();
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestGetNewAnonIdAsync()
+	{
+		try
+		{
+			await _client.GetNewAnonIdAsync();
 		}
 		catch (TenorException e)
 		{

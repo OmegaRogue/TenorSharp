@@ -42,10 +42,10 @@ public class Gif
 	/// <returns>the next set of GIFs</returns>
 	public async Task<Gif> Next(int count) => Type switch
 	{
-		SearchTypes.search => await Client.Search(Term, count, NextGifs),
-		SearchTypes.trending => await Client.Trending(count, NextGifs),
-		SearchTypes.getGifs => await Client.GetGifs(count, NextGifs, Ids),
-		SearchTypes.getRandom => await Client.GetRandomGifs(Term, count, NextGifs),
+		SearchTypes.search => await Client.SearchAsync(Term, count, NextGifs),
+		SearchTypes.trending => await Client.TrendingAsync(count, NextGifs),
+		SearchTypes.getGifs => await Client.GetGifsAsync(count, NextGifs, Ids),
+		SearchTypes.getRandom => await Client.GetRandomGifsAsync(Term, count, NextGifs),
 		var _ => null
 	};
 }
