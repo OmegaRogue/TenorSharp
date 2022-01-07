@@ -17,6 +17,7 @@
         <PackageReleaseNotes>Update to dotnet 5 and dotnet 6
 Add Async Methods
 Update Dependencies</PackageReleaseNotes>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageVersion>1.6.1</PackageVersion>
         <TargetFrameworks>net5.0;net6.0</TargetFrameworks>

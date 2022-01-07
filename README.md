@@ -3,7 +3,6 @@
 [![GNU LGPL licensed](https://img.shields.io/github/license/OmegaRogue/TenorSharp)](COPYING.LESSER)
 [![Nuget](https://img.shields.io/nuget/v/TenorSharp)](https://www.nuget.org/packages/TenorSharp/)
 [![Discord](https://img.shields.io/discord/569206809693257728)](https://discord.gg/sWwzJeG)
-[![Documentation Status](https://readthedocs.org/projects/tenorsharp/badge/?version=latest)](https://tenorsharp.readthedocs.io/en/latest/?badge=latest)
 
 TenorSharp is a C# Library for the [TenorAPI](https://tenor.com/gifapi). TenorSharp was made with dotNET 5.0 and 6.0
 
@@ -15,7 +14,7 @@ For Development, fork and Clone this GitHub Repo.
 
 For Usage, Refer to [Installing](#installing)
 
-If you need more help, refer to the [Documentation](https://tenorsharp.readthedocs.io/en/latest/?badge=latest), or [join the Discord Server](https://discord.gg/sWwzJeG).
+If you need more help, refer to the XML Doc Comments, or [join the Discord Server](https://discord.gg/sWwzJeG).
 
 ### Dependencies
 
@@ -23,7 +22,7 @@ TenorSharp is dependent on RestSharp and Newtonsoft.Json
 
 ### Installing
 
-Use NuGet to Install [this Package](https://www.nuget.org/packages/TenorSharp
+Use NuGet to Install [this Package](https://www.nuget.org/packages/TenorSharp)
 
 ## Usage
 Refer to the [Tenor API Attribution Guidelines](https://tenor.com/gifapi/documentation#attribution) to properly attribute Content retrieved from Tenor.
