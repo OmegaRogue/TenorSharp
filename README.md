@@ -1,19 +1,11 @@
 # TenorSharp
-![Build Status][4]
-[![GNU LGPL licensed][2]][3]
-[![Nuget][5]][6]
-[![Discord][7]][8]
+![Build Status](https://img.shields.io/github/workflow/status/OmegaRogue/TenorSharp/.NET%20Core)
+[![GNU LGPL licensed](https://img.shields.io/github/license/OmegaRogue/TenorSharp)](COPYING.LESSER)
+[![Nuget](https://img.shields.io/nuget/v/TenorSharp)](https://www.nuget.org/packages/TenorSharp/)
+[![Discord](https://img.shields.io/discord/569206809693257728)](https://discord.gg/sWwzJeG)
+[![Documentation Status](https://readthedocs.org/projects/tenorsharp/badge/?version=latest)](https://tenorsharp.readthedocs.io/en/latest/?badge=latest)
 
-[1]: https://img.shields.io/github/license/OmegaRogue/TenorSharp
-[2]: https://img.shields.io/github/license/OmegaRogue/TenorSharp
-[3]: LICENSE
-[4]: https://img.shields.io/github/workflow/status/OmegaRogue/TenorSharp/.NET%20Core
-[5]: https://img.shields.io/nuget/v/TenorSharp
-[6]: https://www.nuget.org/packages/TenorSharp/
-[7]: https://img.shields.io/discord/569206809693257728
-[8]: https://discord.gg/sWwzJeG
-
-TenorSharp is a C# Library for the [TenorAPI](https://tenor.com/gifapi). TenorSharp was made with dotNET Core 2.1
+TenorSharp is a C# Library for the [TenorAPI](https://tenor.com/gifapi). TenorSharp was made with dotNET 5.0 and 6.0
 
 TenorSharp can be used to retrieve Content from Tenor without directly interfacing with the Tenor REST API.
 
@@ -23,16 +15,15 @@ For Development, fork and Clone this GitHub Repo.
 
 For Usage, Refer to [Installing](#installing)
 
-If you need more help, refer to the Documentation in IntelliSense, or [join the Discord Server](https://discord.gg/sWwzJeG).
+If you need more help, refer to the [Documentation](https://tenorsharp.readthedocs.io/en/latest/?badge=latest), or [join the Discord Server](https://discord.gg/sWwzJeG).
 
 ### Dependencies
 
 TenorSharp is dependent on RestSharp and Newtonsoft.Json
 
-
 ### Installing
 
-Use NuGet to Install [this Package](https://www.nuget.org/packages/TenorSharp/1.0.0)
+Use NuGet to Install [this Package](https://www.nuget.org/packages/TenorSharp
 
 ## Usage
 Refer to the [Tenor API Attribution Guidelines](https://tenor.com/gifapi/documentation#attribution) to properly attribute Content retrieved from Tenor.
@@ -53,6 +44,7 @@ public static void Main(string[] args)
 
 * [dotNET Core 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1) - The framework used
 * [dotNET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) - The framework used
+* [dotNET 5.0](https://dotnet.microsoft.com/download/dotnet/6.0) - The framework used
 
 
 ## Contributing
@@ -71,7 +63,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## License
 
-This project is licensed under the GNU LGPL v3.0 License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GNU LGPL v3.0 License - see the [COPYING.LESSER](COPYING.LESSER) and [COPYING](COPYING) files for details
 
 ## Acknowledgments
 
