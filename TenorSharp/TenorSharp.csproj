@@ -4,7 +4,7 @@
         <IsPackable>true</IsPackable>
         <Title>TenorSharp</Title>
         <Authors>OmegaRogue</Authors>
-        <Description>a dotNetCore3.1 Library for Tenor written in C#
+        <Description>a dotNet Library for Tenor written in C#
             here is an Invite to the TenorSharp Discord Server: https://discord.gg/sWwzJeG
         </Description>
         <Copyright>OmegaRogue 2020</Copyright>
@@ -14,16 +14,19 @@
         <PackageTags>Tenor, Tenor-API</PackageTags>
         <RootNamespace>TenorSharp</RootNamespace>
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-        <PackageReleaseNotes>Update to dotnetcore 3.1 and dotnet 5</PackageReleaseNotes>
+        <PackageReleaseNotes>Update to dotnet 5 and dotnet 6
+Add Async Methods
+Update Dependencies</PackageReleaseNotes>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>1.5.1</PackageVersion>
-        <TargetFrameworks>netcoreapp3.1;netcoreapp5.0</TargetFrameworks>
-        <LangVersion>9</LangVersion>
+        <PackageVersion>1.6.1</PackageVersion>
+        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <LangVersion>10</LangVersion>
+        <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.html</PackageLicenseUrl>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
-        <PackageReference Include="RestSharp" Version="106.11.7"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="RestSharp" Version="107.0.1" />
     </ItemGroup>
 
 </Project>

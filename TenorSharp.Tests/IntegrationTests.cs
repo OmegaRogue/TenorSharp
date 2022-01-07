@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 using TenorSharp.Enums;
 
@@ -8,510 +9,456 @@ using Xunit.Abstractions;
 
 using Type = TenorSharp.Enums.Type;
 
-namespace TenorSharp.Tests
+namespace TenorSharp.Tests;
+
+public class IntegrationTests
 {
-	[Collection("Integration Tests")]
-	public class IntegrationTests
+	private const           string      Chars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	private static readonly Random      Random  = new();
+	private static readonly string      ApiKey  = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
+	private readonly        TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic);
+
+
+	private readonly ITestOutputHelper _testOutputHelper;
+
+	public IntegrationTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+
+	private static string RndString(int len)
+		=> new(Enumerable.Range(1, len).Select(_ => Chars[Random.Next(Chars.Length)]).ToArray());
+
+	private static string RndLenString()
 	{
-		private static readonly string ApiKey = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
+		var len = Random.Next();
+		return RndString(len);
+	}
 
-		private readonly TenorClient _client =
-			new(ApiKey,
-				new Locale("en_US"),
-				AspectRatio.all,
-				ContentFilter.medium,
-				MediaFilter.basic,
-				"ecb8d811a40547cf81e8db1014823e30");
-
-
-		private readonly ITestOutputHelper _testOutputHelper;
-
-		public IntegrationTests(ITestOutputHelper testOutputHelper)
+	[Fact]
+	public void TestSearch()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next();
+		try
 		{
-			_testOutputHelper = testOutputHelper;
+			_client.NewSession(anonId);
+			_client.Search(q, limit, pos);
 		}
-
-		[Theory]
-		[InlineData("test",      50, 0)]
-		[InlineData("",          50, 0)]
-		[InlineData("dehfghfgh", 50, 0)]
-		[InlineData("test",      50, 1)]
-		[InlineData("test",      51, 0)]
-		[InlineData("test",      0,  0)]
-		[InlineData(null,        0,  0)]
-		public void TestSearchInt(string q, int limit, int pos)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.Search(q, limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"q: {q}\n"           +
+										$"limit: {limit}\n"   +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
-
-		[Theory]
-		[InlineData("test", 50, "")]
-		[InlineData("test", 50, "null")]
-		[InlineData("test", 50, null)]
-		[InlineData("test", 50, "0.5")]
-		public void TestSearchString(string q, int limit, string pos)
+	}
+	[Fact]
+	public async Task TestSearchAsync()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next();
+		try
 		{
-			try
-			{
-				_client.Search(q, limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else if (!float.TryParse(pos, out var _))
-				{
-					Assert.Equal("Invalid value for parameter \"pos\"", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_client.NewSession(anonId);
+			await _client.SearchAsync(q, limit, pos);
 		}
-
-		[Theory]
-		[InlineData("test",      50, 0)]
-		[InlineData("",          50, 0)]
-		[InlineData("dehfghfgh", 50, 0)]
-		[InlineData("test",      50, 1)]
-		[InlineData("test",      51, 0)]
-		[InlineData("test",      0,  0)]
-		[InlineData(null,        0,  0)]
-		public void TestSearchStickersInt(string q, int limit, int pos)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.SearchStickers(q, limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"q: {q}\n"           +
+										$"limit: {limit}\n"   +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Theory]
-		[InlineData("test", 50, "")]
-		[InlineData("test", 50, "null")]
-		[InlineData("test", 50, null)]
-		[InlineData("test", 50, "0.5")]
-		public void TestSearchStickersString(string q, int limit, string pos)
+	[Fact]
+	public void TestTrending()
+	{
+		try
 		{
-			try
-			{
-				_client.SearchStickers(q, limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else if (!float.TryParse(pos, out var _))
-				{
-					Assert.Equal("Invalid value for parameter \"pos\"", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_client.NewSession(RndString(18));
+			_client.Trending();
 		}
-
-		[Theory]
-		[InlineData(50, 0, new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(50, 1, new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(51, 0, new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(51, 1, new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(0,  0, new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(50, 0, new[] {"null", "12846096", "8766184", "8766189"})]
-		[InlineData(50, 0, new[] {null, "12846096", "8766184", "8766189"})]
-		public void TestGetGifsInt(int limit, int pos, string[] ids)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.GetGifs(limit, pos, ids);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else if (ids.Any(s => !int.TryParse(s, out var _)))
-				{
-					Assert.Equal("Valid id is required.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
-
-		[Theory]
-		[InlineData(50, "0",    new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(50, "",     new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(50, "null", new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(50, null,   new[] {"17599391", "12846096", "8766184", "8766189"})]
-		[InlineData(50, "0.5",  new[] {"17599391", "12846096", "8766184", "8766189"})]
-		public void TestGetGifsString(int limit, string pos, string[] ids)
+	}
+	[Fact]
+	public async Task TestTrendingAsync()
+	{
+		try
 		{
-			try
-			{
-				_client.GetGifs(limit, pos, ids);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else if (!float.TryParse(pos, out var _))
-				{
-					Assert.Equal("Invalid value for parameter \"pos\"", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_client.NewSession(RndString(18));
+			await _client.TrendingAsync();
 		}
-
-		[Theory]
-		[InlineData(20, 0)]
-		[InlineData(20, 1)]
-		[InlineData(51, 0)]
-		[InlineData(0,  0)]
-		public void TestTrendingInt(int limit, int pos)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.Trending(limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Theory]
-		[InlineData(20, "0")]
-		[InlineData(20, "")]
-		[InlineData(20, "null")]
-		[InlineData(20, null)]
-		[InlineData(20, "0.5")]
-		public void TestTrendingString(int limit, string pos)
+	[Fact]
+	public void TestCategoriesEmoji()
+	{
+		try
 		{
-			try
-			{
-				_client.Trending(limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else if (!float.TryParse(pos, out var _))
-				{
-					Assert.Equal("Invalid value for parameter \"pos\"", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_client.NewSession(RndString(18));
+			_client.Categories(Type.emoji);
 		}
-
-		[Theory]
-		[InlineData(20, 0)]
-		[InlineData(20, 1)]
-		[InlineData(51, 0)]
-		[InlineData(0,  0)]
-		public void TestTrendingStickersInt(int limit, int pos)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.TrendingStickers(limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
-
-		[Theory]
-		[InlineData(20, "0")]
-		[InlineData(20, "")]
-		[InlineData(20, "null")]
-		[InlineData(20, null)]
-		[InlineData(20, "0.5")]
-		public void TestTrendingStickersString(int limit, string pos)
+	}
+	
+	[Fact]
+	public async Task TestCategoriesEmojiAsync()
+	{
+		try
 		{
-			try
-			{
-				_client.TrendingStickers(limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else if (!float.TryParse(pos, out var _))
-				{
-					Assert.Equal("Invalid value for parameter \"pos\"", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_client.NewSession(RndString(18));
+			await _client.CategoriesAsync(Type.emoji);
 		}
-
-
-		[Theory]
-		[InlineData("test", 50)]
-		[InlineData("test", 51)]
-		[InlineData("test", 0)]
-		[InlineData("",     50)]
-		[InlineData(null,   50)]
-		public void TestSearchSuggestions(string q, int limit)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.SearchSuggestions(q, limit);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Theory]
-		[InlineData(Type.emoji)]
-		[InlineData(Type.trending)]
-		[InlineData(Type.featured)]
-		public void TestCategories(Type type)
+	[Fact]
+	public void TestCategoriesFeatured()
+	{
+		try
 		{
-			try
-			{
-				_client.Categories(type);
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_client.NewSession(RndString(18));
+			_client.Categories();
 		}
-
-		[Theory]
-		[InlineData("test", 50)]
-		[InlineData("",     50)]
-		[InlineData(null,   50)]
-		[InlineData("test", 51)]
-		[InlineData("test", 0)]
-		public void TestAutoComplete(string q, int limit)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.AutoComplete(q, limit);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
-
-
-		[Theory]
-		[InlineData("17599391", "test")]
-		[InlineData("17599391", "")]
-		[InlineData("17599391", null)]
-		[InlineData("",         "test")]
-		[InlineData("",         "")]
-		[InlineData("",         null)]
-		[InlineData(null,       "test")]
-		[InlineData(null,       "")]
-		[InlineData(null,       null)]
-		public void TestRegisterShare(string id, string q)
+	}
+	
+	[Fact]
+	public async Task TestCategoriesFeaturedAsync()
+	{
+		try
 		{
-			try
-			{
-				_client.RegisterShare(id, q);
-			}
-			catch (TenorException e)
-			{
-				if (!int.TryParse(id, out var _))
-				{
-					Assert.Equal("Id is not a valid int.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_client.NewSession(RndString(18));
+			await _client.CategoriesAsync();
 		}
-
-
-		[Theory]
-		[InlineData(50)]
-		[InlineData(51)]
-		[InlineData(0)]
-		public void TestTrendingTerms(int limit)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.TrendingTerms(limit);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
+	}
 
-		[Theory]
-		[InlineData("test", 50, 0)]
-		[InlineData("",     50, 0)]
-		[InlineData("null", 50, 0)]
-		[InlineData("test", 50, 1)]
-		[InlineData("test", 51, 0)]
-		[InlineData("test", 0,  0)]
-		public void TestGetRandomGifsInt(string q, int limit, int pos)
+	[Fact]
+	public void TestCategoriesTrending()
+	{
+		try
 		{
-			try
-			{
-				_client.GetRandomGifs(q, limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_client.NewSession(RndString(18));
+			_client.Categories(Type.trending);
 		}
-
-		[Theory]
-		[InlineData("test", 50, "0")]
-		[InlineData("test", 50, "")]
-		[InlineData("test", 50, "0.5")]
-		[InlineData("test", 50, "null")]
-		[InlineData("test", 50, null)]
-		public void TestGetRandomGifsString(string q, int limit, string pos)
+		catch (TenorException e)
 		{
-			try
-			{
-				_client.GetRandomGifs(q, limit, pos);
-			}
-			catch (TenorException e)
-			{
-				if (limit > 50 || limit < 1)
-				{
-					Assert.Equal("Limit must be between 1 and 50.", e.Message);
-				}
-				else if (!float.TryParse(pos, out var _))
-				{
-					Assert.Equal("Invalid value for parameter \"pos\"", e.Message);
-				}
-				else
-				{
-					_testOutputHelper.WriteLine(e.ToString());
-					throw;
-				}
-			}
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
-
-		[Fact]
-		public void TestGetNewAnonId()
+	}
+	
+	[Fact]
+	public async Task TestCategoriesTrendingAsync()
+	{
+		try
 		{
-			try
-			{
-				_client.GetNewAnonId();
-			}
-			catch (TenorException e)
-			{
-				_testOutputHelper.WriteLine(e.ToString());
-				throw;
-			}
+			_client.NewSession(RndString(18));
+			await _client.CategoriesAsync(Type.trending);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestAutoComplete()
+	{
+		try
+		{
+			_client.NewSession(RndString(18));
+			_client.AutoComplete(RndString(10), Random.Next(50));
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestAutoCompleteAsync()
+	{
+		try
+		{
+			_client.NewSession(RndString(18));
+			await _client.AutoCompleteAsync(RndString(10), Random.Next(50));
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestGetGifs()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			var result = _client.Search("test", limit, pos);
+
+			_client.GetGifs(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestGetGifsAsync()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			var result = await _client.SearchAsync("test", limit, pos);
+
+			await _client.GetGifsAsync(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestRegisterShare()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			var result = _client.Search("test", limit, pos);
+			var id     = result.GifResults.First().Id;
+
+			_client.RegisterShare(id, "test");
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestRegisterShareAsync()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			var result = await _client.SearchAsync("test", limit, pos);
+			var id     = result.GifResults.First().Id;
+
+			await _client.RegisterShareAsync(id, "test");
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestSearchSuggestions()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		try
+		{
+			_client.NewSession(anonId);
+
+			_client.SearchSuggestions(q, limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestSearchSuggestionsAsync()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		try
+		{
+			_client.NewSession(anonId);
+
+			await _client.SearchSuggestionsAsync(q, limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestTrendingTerms()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		try
+		{
+			_client.NewSession(anonId);
+
+			_client.TrendingTerms(limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"limit: {limit}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestTrendingTermsAsync()
+	{
+		var anonId = RndString(18);
+		var limit  = Random.Next(1, 50);
+		try
+		{
+			_client.NewSession(anonId);
+
+			await _client.TrendingTermsAsync(limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"limit: {limit}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestGetRandomGifs()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			_client.GetRandomGifs(q, limit, pos);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"q: {q}\n"           +
+										$"limit: {limit}\n"   +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestGetRandomGifsAsync()
+	{
+		var anonId = RndString(18);
+		var q      = RndString(10);
+		var limit  = Random.Next(1, 50);
+		var pos    = Random.Next(10);
+		try
+		{
+			_client.NewSession(anonId);
+			await _client.GetRandomGifsAsync(q, limit, pos);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+										$"q: {q}\n"           +
+										$"limit: {limit}\n"   +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+
+			throw;
+		}
+	}
+
+	[Fact]
+	public void TestGetNewAnonId()
+	{
+		try
+		{
+			_client.GetNewAnonId();
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+	
+	[Fact]
+	public async Task TestGetNewAnonIdAsync()
+	{
+		try
+		{
+			await _client.GetNewAnonIdAsync();
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
 		}
 	}
 }
