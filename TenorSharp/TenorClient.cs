@@ -20,7 +20,7 @@ namespace TenorSharp;
 
 public class TenorClient
 {
-	private const string BaseUri = "https://api.tenor.com/v1/";
+	private const string BaseUri = "https://g.tenor.com/v1/";
 
 	private static readonly Locale DefaultLocale = new("en_US");
 
@@ -130,6 +130,7 @@ public class TenorClient
 	/// <inheritdoc cref="SearchAsync(string,int,string)"/>
 	public Gif Search(string q, int limit = 20, string pos = "0") => Task.Run(() => SearchAsync(q, limit, pos)).GetAwaiter().GetResult();
 	
+	//TODO: Add Sticker Search
 	/// <summary>
 	///     Get a json object containing a list of the most relevant GIFs for a given search term(s), category(ies), emoji(s),
 	///     or any combination thereof.
@@ -183,22 +184,11 @@ public class TenorClient
 		}
 	}
 	
-	/// <inheritdoc cref="TrendingAsync(int, int)"/>
-	public async Task<Gif> TrendingAsync() => await TrendingAsync(20, 0);
-
-	/// <inheritdoc cref="Trending(int, int)"/>
-	public Gif Trending() => Trending(20, 0);
-
-	/// <inheritdoc cref="TrendingAsync(int, int)"/>
-	public Gif Trending(int limit = 20, int pos = 0) => Task.Run(() => TrendingAsync(limit, pos)).GetAwaiter().GetResult();
-	
-	/// <inheritdoc cref="TrendingAsync(int,string)"/>
-	public async Task<Gif> TrendingAsync(int limit = 20, int pos = 0)
-		=> await TrendingAsync(limit, pos.ToString());
 	
 	/// <inheritdoc cref="TrendingAsync(int, string)"/>
 	public Gif Trending(int limit = 20, string pos = "0") => Task.Run(() => TrendingAsync(limit, pos)).GetAwaiter().GetResult();
 
+	//TODO: Add Trending Stickers
 	/// <summary>
 	///     Get a json object containing a list of the current global trending GIFs. The trending stream is updated regularly
 	///     throughout the day.
