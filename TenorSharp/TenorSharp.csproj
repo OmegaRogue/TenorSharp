@@ -27,7 +27,7 @@ Update Dependencies</PackageReleaseNotes>
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="RestSharp" Version="107.0.1" />
+        <PackageReference Include="RestSharp" Version="107.0.2" />
     </ItemGroup>
 
 </Project>
