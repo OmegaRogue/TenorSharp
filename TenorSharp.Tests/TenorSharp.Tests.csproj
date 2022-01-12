@@ -20,7 +20,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TenorSharp\TenorSharp.csproj" />
+        <ProjectReference Include="..\TenorSharp\TenorSharp.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="obj"/>
     </ItemGroup>
 
 </Project>

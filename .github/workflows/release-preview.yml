@@ -1,0 +1,35 @@
+﻿on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+-[\w\d]+.[0-9]+"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup .NET 5.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.x.x'
+      - name: Setup .NET 6.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.x.x'
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build TenorSharp -c Debug --no-restore
+      - name: Pack
+        run: dotnet pack --configuration Debug --output .
+      - name: Push GitHub
+        run: dotnet nuget push NuGet.Workflow.${VERSION}.nupkg --source https://nuget.pkg.github.com/OmegaRogue/index.json --api-key ${GITHUB_TOKEN}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
