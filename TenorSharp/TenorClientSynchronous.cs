@@ -14,34 +14,27 @@ public partial class TenorClient
 		=> SearchAsync(q, limit, pos).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="TrendingAsync"/>
-	public Gif Trending(int limit = 20, string pos = "0")
-		=> TrendingAsync(limit, pos).GetAwaiter().GetResult();
+	public Gif Trending(int limit = 20, string pos = "0") => TrendingAsync(limit, pos).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="CategoriesAsync"/>
-	public Category Categories(Type type = Type.featured)
-		=> CategoriesAsync(type).GetAwaiter().GetResult();
+	public Category Categories(Type type = Type.featured) => CategoriesAsync(type).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="SearchSuggestionsAsync"/>
 	public Terms SearchSuggestions(string q, int limit = 20)
 		=> SearchSuggestionsAsync(q, limit).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="AutoCompleteAsync"/>
-	public Terms AutoComplete(string q, int limit = 20)
-		=> AutoCompleteAsync(q, limit).GetAwaiter().GetResult();
+	public Terms AutoComplete(string q, int limit = 20) => AutoCompleteAsync(q, limit).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="TrendingTermsAsync"/>
 	public Terms TrendingTerms(int limit = 20) => TrendingTermsAsync(limit).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="RegisterShareAsync"/>
-	public string RegisterShare(string id, string q = null)
-		=> RegisterShareAsync(id, q).GetAwaiter().GetResult();
+	public string RegisterShare(string id, string q = null) => RegisterShareAsync(id, q).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="GetGifsAsync"/>
-	public Gif GetGifs(
-		int             limit = 20,
-		string          pos   = "0",
-		params string[] ids
-	) => GetGifsAsync(limit, pos, ids).GetAwaiter().GetResult();
+	public Gif GetGifs(int limit = 20, string pos = "0", params string[] ids)
+		=> GetGifsAsync(limit, pos, ids).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="GetNewAnonIdAsync"/>
 	public string GetNewAnonId() => GetNewAnonIdAsync().GetAwaiter().GetResult();
