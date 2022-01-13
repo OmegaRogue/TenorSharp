@@ -1,6 +1,8 @@
+// ReSharper disable InconsistentNaming
+
 namespace TenorSharp.Enums;
 
-public enum SearchTypes
+internal enum SearchTypes
 {
 	search,
 	trending,

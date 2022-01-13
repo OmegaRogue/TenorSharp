@@ -2,6 +2,9 @@ using Newtonsoft.Json;
 
 namespace TenorSharp.ResponseObjects;
 
+/// <summary>
+/// an HTTP Error Returned by the Tenor API
+/// </summary>
 public class HttpError
 {
 	/// <summary>

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -18,6 +19,9 @@ using Type = TenorSharp.Enums.Type;
 
 namespace TenorSharp;
 
+/// <summary>
+/// A Client for the Tenor API
+/// </summary>
 public class TenorClient
 {
 	private const string BaseUri = "https://g.tenor.com/v1/";
@@ -64,7 +68,7 @@ public class TenorClient
 	private string _anonId;
 
 	/// <summary>
-	///     Filter the response GIF_OBJECT list to only include GIFs with aspect ratios that fit with in the selected range.
+	///     Filter the response <see cref="GifObject"/> list to only include GIFs with aspect ratios that fit with in the selected range.
 	/// </summary>
 	private AspectRatio _arRange;
 
@@ -79,11 +83,21 @@ public class TenorClient
 	private Locale _locale;
 
 	/// <summary>
-	///     Reduce the Number of GIF formats returned in the GifObject list.
+	///     Reduce the Number of GIF formats returned in the <see cref="GifObject"/> list.
 	/// </summary>
 	private MediaFilter _mediaFilter;
 
 
+	/// <summary>
+	/// initializes a new Tenor Client
+	/// </summary>
+	/// <param name="apiKey">client key for privileged API access</param>
+	/// <param name="locale">specify default language to interpret search string</param>
+	/// <param name="arRange">Filter the response <see cref="GifObject"/> list to only include GIFs with aspect ratios that fit with in the selected range.</param>
+	/// <param name="contentFilter">specify the content safety filter level</param>
+	/// <param name="mediaFilter">Reduce the Number of GIF formats returned in the <see cref="GifObject"/> list.</param>
+	/// <param name="anonId">specify the anonymous_id tied to the given user</param>
+	/// <param name="testClient">a custom HttpClient object to use instead of the default, mainly for testing purposes.</param>
 	public TenorClient(
 		string        apiKey,
 		Locale        locale        = null,
@@ -91,12 +105,14 @@ public class TenorClient
 		ContentFilter contentFilter = ContentFilter.off,
 		MediaFilter   mediaFilter   = MediaFilter.off,
 		string        anonId        = null,
-		RestClient    testClient    = null
+		HttpClient    testClient    = null
 	)
 	{
-		_locale = locale     ?? DefaultLocale;
-		_client = testClient ?? new RestClient(BaseUri);
-
+		_locale = locale ?? DefaultLocale;
+		_client = testClient == null
+					  ? new RestClient(BaseUri)
+					  : new RestClient(testClient, new RestClientOptions(BaseUri));
+		_client.UseSerializer<RestSharp.Serializers.NewtonsoftJson.JsonNetSerializer>();
 		_arRange       = arRange;
 		_contentFilter = contentFilter;
 		_mediaFilter   = mediaFilter;
@@ -107,7 +123,12 @@ public class TenorClient
 		_client = _client.AddDefaultParameter("key", apiKey, ParameterType.QueryString);
 	}
 
-	public TenorClient(TenorConfiguration configuration, RestClient testClient = null) : this(configuration.ApiKey,
+	/// <summary>
+	/// initializes a new Tenor Client
+	/// </summary>
+	/// <param name="configuration">an object containing the configuration for the Client</param>
+	/// <param name="testClient">a custom HttpClient object to use instead of the default, mainly for testing purposes.</param>
+	public TenorClient(TenorConfiguration configuration, HttpClient testClient = null) : this(configuration.ApiKey,
 		configuration.Locale,
 		configuration.ArRange,
 		configuration
@@ -120,16 +141,39 @@ public class TenorClient
 	}
 
 
+	/// <summary>
+	/// Modifies the Locale of the Client
+	/// </summary>
+	public Locale Locale { get; set; }
+
+	/// <summary>
+	/// Modifies the Content Filter of the Client
+	/// </summary>
+	public ContentFilter ContentFilter { get; set; }
+
+	/// <summary>
+	/// Modifies the Media Filter of the Client
+	/// </summary>
+	public MediaFilter MediaFilter { get; set; }
+
+	/// <summary>
+	/// Modifies the Aspect Ratio Range of the Client
+	/// </summary>
+	public AspectRatio AspectRatioRange { get; set; }
+
+
 	/// <inheritdoc cref="SearchAsync(string,int,int)"/>
-	public Gif Search(string q, int limit = 20, int pos = 0) => Task.Run(() => SearchAsync(q, limit, pos)).GetAwaiter().GetResult();
-	
+	public Gif Search(string q, int limit = 20, int pos = 0)
+		=> SearchAsync(q, limit, pos).GetAwaiter().GetResult();
+
 	/// <inheritdoc cref="SearchAsync(string,int,string)"/>
 	public async Task<Gif> SearchAsync(string q, int limit = 20, int pos = 0)
 		=> await SearchAsync(q, limit, pos.ToString());
-	
+
 	/// <inheritdoc cref="SearchAsync(string,int,string)"/>
-	public Gif Search(string q, int limit = 20, string pos = "0") => Task.Run(() => SearchAsync(q, limit, pos)).GetAwaiter().GetResult();
-	
+	public Gif Search(string q, int limit = 20, string pos = "0")
+		=> SearchAsync(q, limit, pos).GetAwaiter().GetResult();
+
 	//TODO: Add Sticker Search
 	/// <summary>
 	///     Get a json object containing a list of the most relevant GIFs for a given search term(s), category(ies), emoji(s),
@@ -156,6 +200,8 @@ public class TenorClient
 			_searchRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
 		if (_mediaFilter != MediaFilter.off)
 			_searchRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
+		if (limit is < 1 or > 50)
+			throw new TenorException("Limit must be between 1 and 50.", 1);
 
 
 		var result  = await _client.ExecuteAsync(_searchRequest);
@@ -183,10 +229,11 @@ public class TenorClient
 			throw new TenorException(e.Message, e, e.HResult);
 		}
 	}
-	
-	
+
+
 	/// <inheritdoc cref="TrendingAsync(int, string)"/>
-	public Gif Trending(int limit = 20, string pos = "0") => Task.Run(() => TrendingAsync(limit, pos)).GetAwaiter().GetResult();
+	public Gif Trending(int limit = 20, string pos = "0")
+		=> TrendingAsync(limit, pos).GetAwaiter().GetResult();
 
 	//TODO: Add Trending Stickers
 	/// <summary>
@@ -237,9 +284,10 @@ public class TenorClient
 			throw new TenorException(e.Message, e, e.HResult);
 		}
 	}
-	
+
 	/// <inheritdoc cref="CategoriesAsync"/>
-	public Category Categories(Type type = Type.featured) => Task.Run(() => CategoriesAsync(type)).GetAwaiter().GetResult();
+	public Category Categories(Type type = Type.featured)
+		=> CategoriesAsync(type).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of GIF categories associated with the provided type.
@@ -276,9 +324,10 @@ public class TenorClient
 			throw new TenorException(e.Message, e, e.HResult);
 		}
 	}
-	
+
 	/// <inheritdoc cref="SearchSuggestionsAsync"/>
-	public Terms SearchSuggestions(string q, int limit = 20) => Task.Run(() => SearchSuggestionsAsync(q, limit)).GetAwaiter().GetResult();
+	public Terms SearchSuggestions(string q, int limit = 20)
+		=> SearchSuggestionsAsync(q, limit).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of alternative search terms given a search term.
@@ -307,7 +356,8 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Terms>(content);
+			var terms = JsonConvert.DeserializeObject<Terms>(content);
+			return terms;
 		}
 		catch (JsonException)
 		{
@@ -319,9 +369,10 @@ public class TenorClient
 			throw new TenorException(e.Message, e, e.HResult);
 		}
 	}
-	
+
 	/// <inheritdoc cref="AutoCompleteAsync"/>
-	public Terms AutoComplete(string q, int limit = 20) => Task.Run(() => AutoCompleteAsync(q, limit)).GetAwaiter().GetResult();
+	public Terms AutoComplete(string q, int limit = 20)
+		=> AutoCompleteAsync(q, limit).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of completed search terms given a partial search term.
@@ -329,7 +380,7 @@ public class TenorClient
 	/// </summary>
 	/// <param name="q">a search string</param>
 	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
-	/// <returns>an Array of Search Terms</returns>
+	/// <returns>an Array of <see cref="Terms">Search Terms</see></returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
 	public async Task<Terms> AutoCompleteAsync(string q, int limit = 20)
 	{
@@ -360,7 +411,7 @@ public class TenorClient
 	}
 
 	/// <inheritdoc cref="TrendingTermsAsync"/>
-	public Terms TrendingTerms(int limit = 20) => Task.Run(() => TrendingTermsAsync(limit)).GetAwaiter().GetResult();
+	public Terms TrendingTerms(int limit = 20) => TrendingTermsAsync(limit).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of the current trending search terms.
@@ -369,7 +420,7 @@ public class TenorClient
 	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
 	/// <returns>an Array of Search Terms</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	/// <exception cref="Exception">thrown when the Tenor API returns Invalid Data</exception>
+	/// <exception cref="System.Exception">thrown when the Tenor API returns Invalid Data</exception>
 	public async Task<Terms> TrendingTermsAsync(int limit = 20)
 	{
 		_trendingTermsRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
@@ -400,7 +451,7 @@ public class TenorClient
 
 	/// <inheritdoc cref="RegisterShareAsync"/>
 	public string RegisterShare(string id, string q = null)
-		=> Task.Run(() => RegisterShareAsync(id, q)).GetAwaiter().GetResult();
+		=> RegisterShareAsync(id, q).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Register a user’s sharing of a GIF.
@@ -446,7 +497,7 @@ public class TenorClient
 		int             limit = 20,
 		int             pos   = 0,
 		params string[] ids
-	) => Task.Run(() => GetGifsAsync(limit, pos, ids)).GetAwaiter().GetResult();
+	) => GetGifsAsync(limit, pos, ids).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="GetGifsAsync(int,string,string[])"/>
 	public async Task<Gif> GetGifsAsync(
@@ -455,13 +506,13 @@ public class TenorClient
 		params string[] ids
 	)
 		=> await GetGifsAsync(limit, pos.ToString(), ids);
-	
+
 	/// <inheritdoc cref="GetGifsAsync(int,string,string[])"/>
 	public Gif GetGifs(
 		int             limit = 20,
 		string          pos   = "0",
 		params string[] ids
-	) => Task.Run(() => GetGifsAsync(limit, pos, ids)).GetAwaiter().GetResult();
+	) => GetGifsAsync(limit, pos, ids).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get the GIF(s) for the corresponding id(s)
@@ -518,8 +569,6 @@ public class TenorClient
 		}
 	}
 
-	
-
 
 	/// <inheritdoc cref="GetNewAnonIdAsync"/>
 	public string GetNewAnonId() => Task.Run(GetNewAnonIdAsync).GetAwaiter().GetResult();
@@ -552,10 +601,10 @@ public class TenorClient
 		}
 	}
 
-	
+
 	/// <inheritdoc cref="GetRandomGifsAsync(string,int,int)"/>
 	public Gif GetRandomGifs(string q, int limit = 20, int pos = 0)
-		=> Task.Run(() => GetRandomGifsAsync(q, limit, pos)).GetAwaiter().GetResult();
+		=> GetRandomGifsAsync(q, limit, pos).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="GetRandomGifsAsync(string,int,string)" />
 	public async Task<Gif> GetRandomGifsAsync(string q, int limit = 20, int pos = 0)
@@ -563,7 +612,7 @@ public class TenorClient
 
 	/// <inheritdoc cref="GetRandomGifsAsync(string,int,string)"/>
 	public Gif GetRandomGifs(string q, int limit = 20, string pos = "0")
-		=> Task.Run(() => GetRandomGifsAsync(q, limit, pos)).GetAwaiter().GetResult();
+		=> GetRandomGifsAsync(q, limit, pos).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a randomized list of GIFs for a given search term. This differs from the search endpoint which returns a rank
@@ -618,9 +667,6 @@ public class TenorClient
 	}
 
 
-	
-
-
 	/// <summary>
 	///     Start new Session with an Anonymous ID
 	/// </summary>
@@ -632,45 +678,87 @@ public class TenorClient
 		var _ => throw new TenorException("Anon_id must be between 16 and 32 characters.", 1)
 	};
 
+	/// <summary>
+	/// Returns the Current Anonymous ID
+	/// </summary>
+	/// <returns>the current anonymous ID</returns>
 	public string GetSession() => _anonId;
 
+	/// <summary>
+	/// Sets the locale of the Client
+	/// </summary>
+	/// <param name="locale">the new Locale</param>
+	[Obsolete("SetLocale is deprecated, please use Locale instead.")]
 	public void SetLocale(string locale) => Locale = new Locale(locale);
 
 
+	/// <inheritdoc cref="SetLocale(string)"/>
 	[Obsolete("SetLocale is deprecated, please use Locale instead.")]
 	public void SetLocale(Locale locale) => Locale = locale;
 
+	/// <summary>
+	/// GetLocale is deprecated, please use Locale instead.
+	/// </summary>
+	/// <returns></returns>
 	[Obsolete("GetLocale is deprecated, please use Locale instead.")]
 	public Locale GetLocale() => Locale;
 
+	/// <summary>
+	/// Resets the Clients Locale to en_us
+	/// </summary>
 	public void ResetLocale() => Locale = DefaultLocale;
 
+	/// <summary>
+	/// Clears the current Anonymous ID
+	/// </summary>
 	public void ClearSession() => _anonId = null;
 
+	/// <summary>
+	/// SetContentFilter is deprecated, please use ContentFilter instead.
+	/// </summary>
+	/// <param name="filter"></param>
 	[Obsolete("SetContentFilter is deprecated, please use ContentFilter instead.")]
 	public void SetContentFilter(ContentFilter filter) => ContentFilter = filter;
 
-
-	public Locale        Locale           { get; set; }
-	public ContentFilter ContentFilter    { get; set; }
-	public MediaFilter   MediaFilter      { get; set; }
-	public AspectRatio   AspectRatioRange { get; set; }
-
+	/// <summary>
+	/// GetContentFilter is deprecated, please use ContentFilter instead.
+	/// </summary>
+	/// <returns></returns>
 	[Obsolete("GetContentFilter is deprecated, please use ContentFilter instead.")]
 	public ContentFilter GetContentFilter() => ContentFilter;
 
+	/// <summary>
+	/// SetMediaFilter is deprecated, please use MediaFilter instead.
+	/// </summary>
+	/// <param name="filter"></param>
 	[Obsolete("SetMediaFilter is deprecated, please use MediaFilter instead.")]
 	public void SetMediaFilter(MediaFilter filter) => MediaFilter = filter;
 
+	/// <summary>
+	/// GetMediaFilter is deprecated, please use MediaFilter instead.
+	/// </summary>
+	/// <returns></returns>
 	[Obsolete("GetMediaFilter is deprecated, please use MediaFilter instead.")]
 	public MediaFilter GetMediaFilter() => MediaFilter;
 
+	/// <summary>
+	/// SetAspectRatioRange is deprecated, please use AspectRatioRange instead.
+	/// </summary>
+	/// <param name="ratio"></param>
 	[Obsolete("SetAspectRatioRange is deprecated, please use AspectRatioRange instead.")]
 	public void SetAspectRatioRange(AspectRatio ratio) => AspectRatioRange = ratio;
 
+	/// <summary>
+	/// GetAspectRatioRange is deprecated, please use AspectRatioRange instead.
+	/// </summary>
+	/// <returns></returns>
 	[Obsolete("GetAspectRatioRange is deprecated, please use AspectRatioRange instead.")]
 	public AspectRatio GetAspectRatioRange() => AspectRatioRange;
 
+	/// <summary>
+	/// Returns the currently used API Key
+	/// </summary>
+	/// <returns></returns>
 	public string GetApiKey() => _apiKey;
 
 	/// <summary>
@@ -685,6 +773,7 @@ public class TenorClient
 		return stream;
 	}
 
+	/// <inheritdoc cref="GetMediaStream(Uri)" />
 	public static Stream GetMediaStream(string url) => GetMediaStream(new Uri(url));
 
 

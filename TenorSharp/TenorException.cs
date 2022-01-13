@@ -9,8 +9,14 @@ namespace TenorSharp;
 [Serializable]
 public class TenorException : Exception
 {
+	/// <summary>
+	/// The Error Code of the Exception
+	/// </summary>
 	public int ErrorCode;
 
+	/// <summary>
+	/// Creates a new Exception
+	/// </summary>
 	public TenorException()
 	{
 	}
