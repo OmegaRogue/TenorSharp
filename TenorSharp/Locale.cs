@@ -7,6 +7,12 @@ namespace TenorSharp;
 /// </summary>
 public class Locale : CultureInfo
 {
+	/// <inheritdoc cref="CultureInfo(string)"/>
+	public Locale() : this("en_us")
+	{
+	}
+
+
 	/// <inheritdoc cref="CultureInfo(int)"/>
 	public Locale(int culture) : base(culture)
 	{

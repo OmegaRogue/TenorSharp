@@ -16,8 +16,8 @@ public class IntegrationTests
 	private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 	// private static readonly Random      Random  = new();
-	private static readonly string      ApiKey  = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
-	private readonly        TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic);
+	private static readonly string ApiKey = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
+	private readonly TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic, anonId: "00000000000000000");
 
 
 	private readonly ITestOutputHelper _testOutputHelper;
@@ -43,7 +43,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			if (!succeed)
 				Assert.Throws<TenorException>(() => _client.Search("lorem ipsum", limit, $"{pos}"));
 			else
@@ -70,7 +69,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			if (!succeed)
 				await Assert.ThrowsAsync<TenorException>(async ()
 					=> await _client.SearchAsync("lorem ipsum", limit, $"{pos}"));
@@ -99,7 +97,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			if (!succeed)
 				Assert.Throws<TenorException>(() => _client.Trending(limit, pos.ToString()));
 			else
@@ -122,7 +119,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			await _client.TrendingAsync(limit, pos.ToString());
 		}
 		catch (TenorException e)
@@ -137,7 +133,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			_client.Categories(Type.emoji);
 		}
 		catch (TenorException e)
@@ -152,7 +147,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			await _client.CategoriesAsync(Type.emoji);
 		}
 		catch (TenorException e)
@@ -167,7 +161,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			_client.Categories();
 		}
 		catch (TenorException e)
@@ -182,7 +175,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			await _client.CategoriesAsync();
 		}
 		catch (TenorException e)
@@ -197,7 +189,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			_client.Categories(Type.trending);
 		}
 		catch (TenorException e)
@@ -212,7 +203,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			await _client.CategoriesAsync(Type.trending);
 		}
 		catch (TenorException e)
@@ -232,7 +222,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			_client.AutoComplete("lorem ipsum", limit);
 		}
 		catch (TenorException e)
@@ -252,7 +241,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			await _client.AutoCompleteAsync("lorem ipsum", limit);
 		}
 		catch (TenorException e)
@@ -272,7 +260,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			var result = _client.Search("lorem ipsum", pos: 0);
 
 			_client.GetGifs(limit, pos.ToString(), result.GifResults.Select(o => o.Id).ToArray());
@@ -294,7 +281,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			var result = await _client.SearchAsync("lorem ipsum", pos: 0);
 
 			await _client.GetGifsAsync(limit, pos.ToString(), result.GifResults.Select(o => o.Id).ToArray());
@@ -311,7 +297,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			var result = _client.Search("lorem ipsum", pos: 0);
 			var id     = result.GifResults.First().Id;
 
@@ -329,7 +314,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			var result = await _client.SearchAsync("lorem ipsum", pos: 0);
 			var id     = result.GifResults.First().Id;
 
@@ -352,8 +336,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
-
 			_client.SearchSuggestions("lorem ipsum", limit);
 		}
 		catch (TenorException e)
@@ -373,8 +355,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
-
 			await _client.SearchSuggestionsAsync("lorem ipsum", limit);
 		}
 		catch (TenorException e)
@@ -394,8 +374,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
-
 			_client.TrendingTerms(limit);
 		}
 		catch (TenorException e)
@@ -417,8 +395,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
-
 			await _client.TrendingTermsAsync(limit);
 		}
 		catch (TenorException e)
@@ -440,7 +416,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			_client.GetRandomGifs("lorem ipsum", limit, pos.ToString());
 		}
 		catch (TenorException e)
@@ -465,7 +440,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession("00000000000000000");
 			await _client.GetRandomGifsAsync("lorem ipsum", limit, pos.ToString());
 		}
 		catch (TenorException e)

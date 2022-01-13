@@ -97,6 +97,7 @@ public class UnitTests
 	private static string RndString(int len)
 		=> new(Enumerable.Range(1, len).Select(_ => Chars[Random.Next(Chars.Length)]).ToArray());
 
+
 	private static string RndLenString()
 	{
 		var len = Random.Next();
@@ -114,7 +115,6 @@ public class UnitTests
 		try
 
 		{
-			_client.NewSession("00000000000000000");
 			if (!succeed)
 				Assert.Throws<TenorException>(() => _client.Search("lorem ipsum", limit, $"{pos}"));
 			else
@@ -141,7 +141,6 @@ public class UnitTests
 		var pos    = Random.Next();
 		try
 		{
-			_client.NewSession(anonId);
 			await _client.SearchAsync(q, limit, pos);
 		}
 		catch (TenorException e)
@@ -160,7 +159,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			_client.Trending();
 		}
 		catch (TenorException e)
@@ -175,7 +173,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			await _client.TrendingAsync();
 		}
 		catch (TenorException e)
@@ -190,7 +187,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			_client.Categories(Type.emoji);
 		}
 		catch (TenorException e)
@@ -205,7 +201,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			await _client.CategoriesAsync(Type.emoji);
 		}
 		catch (TenorException e)
@@ -220,7 +215,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			_client.Categories();
 		}
 		catch (TenorException e)
@@ -235,7 +229,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			await _client.CategoriesAsync();
 		}
 		catch (TenorException e)
@@ -250,7 +243,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			_client.Categories(Type.trending);
 		}
 		catch (TenorException e)
@@ -265,7 +257,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			await _client.CategoriesAsync(Type.trending);
 		}
 		catch (TenorException e)
@@ -280,7 +271,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			_client.AutoComplete(RndString(10), Random.Next(50));
 		}
 		catch (TenorException e)
@@ -295,7 +285,6 @@ public class UnitTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			await _client.AutoCompleteAsync(RndString(10), Random.Next(50));
 		}
 		catch (TenorException e)
@@ -311,7 +300,6 @@ public class UnitTests
 		var anonId = RndString(18);
 		try
 		{
-			_client.NewSession(anonId);
 			var result = _client.Search("test", 20, 0);
 
 			_client.GetGifs(20, 1, result.GifResults.Select(o => o.Id).ToArray());
@@ -331,7 +319,6 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
 			var result = await _client.SearchAsync("test", limit, pos);
 
 			await _client.GetGifsAsync(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
@@ -351,7 +338,6 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
 			var result = _client.Search("test", limit, pos);
 			var id     = result.GifResults.First().Id;
 
@@ -372,7 +358,6 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
 			var result = await _client.SearchAsync("test", limit, pos);
 			var id     = result.GifResults.First().Id;
 
@@ -393,8 +378,6 @@ public class UnitTests
 		var limit  = Random.Next(1, 50);
 		try
 		{
-			_client.NewSession(anonId);
-
 			var test = _client.SearchSuggestions(q, limit);
 			_testOutputHelper.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(test));
 		}
@@ -413,8 +396,6 @@ public class UnitTests
 		var limit  = Random.Next(1, 50);
 		try
 		{
-			_client.NewSession(anonId);
-
 			await _client.SearchSuggestionsAsync(q, limit);
 		}
 		catch (TenorException e)
@@ -431,8 +412,6 @@ public class UnitTests
 		var limit  = Random.Next(1, 50);
 		try
 		{
-			_client.NewSession(anonId);
-
 			_client.TrendingTerms(limit);
 		}
 		catch (TenorException e)
@@ -451,8 +430,6 @@ public class UnitTests
 		var limit  = Random.Next(1, 50);
 		try
 		{
-			_client.NewSession(anonId);
-
 			await _client.TrendingTermsAsync(limit);
 		}
 		catch (TenorException e)
@@ -473,7 +450,6 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
 			_client.GetRandomGifs(q, limit, pos);
 		}
 		catch (TenorException e)
@@ -497,7 +473,6 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
 			await _client.GetRandomGifsAsync(q, limit, pos);
 		}
 		catch (TenorException e)
