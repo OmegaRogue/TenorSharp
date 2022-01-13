@@ -1,8 +1,6 @@
 ﻿name: Test
 on:
   push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -28,6 +26,13 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release
       - name: Test
-        run: dotnet test --configuration Release --no-build
+        run: dotnet test --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
         env:
           TENOR_TEST_API_KEY: ${{ secrets.TENOR_TEST_API_KEY }}
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: JEST Tests            # Name of the check run which will be created
+          path: reports/jest-*.xml    # Path to test results
+          reporter: jest-junit        # Format of test results

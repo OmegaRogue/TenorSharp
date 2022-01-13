@@ -1,9 +1,14 @@
 using System;
+using System.Collections.Generic;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TenorSharp.ResponseObjects;
 
+/// <summary>
+/// an object containing a GIF category.
+/// </summary>
 public class CategoryObject
 {
 	/// <summary>
@@ -11,6 +16,12 @@ public class CategoryObject
 	/// </summary>
 	[JsonProperty("image")]
 	public Uri Image;
+
+	/// <summary>
+	/// catch-all for any not explicitly defined fields
+	/// </summary>
+	[JsonExtensionData]
+	public IDictionary<string, JToken> Members;
 
 	/// <summary>
 	///     Category name to overlay over the image. The name will be translated to match the locale of the corresponding

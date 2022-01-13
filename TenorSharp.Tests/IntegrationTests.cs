@@ -13,77 +13,94 @@ namespace TenorSharp.Tests;
 
 public class IntegrationTests
 {
-	private const           string      Chars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	private static readonly Random      Random  = new();
-	private static readonly string      ApiKey  = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
-	private readonly        TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic);
+	private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+	// private static readonly Random      Random  = new();
+	private static readonly string ApiKey = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
+	private readonly TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic, anonId: "00000000000000000");
 
 
 	private readonly ITestOutputHelper _testOutputHelper;
 
 	public IntegrationTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
-	private static string RndString(int len)
-		=> new(Enumerable.Range(1, len).Select(_ => Chars[Random.Next(Chars.Length)]).ToArray());
+	// private static string RndString(int len)
+	// 	=> new(Enumerable.Range(1, len).Select(_ => Chars[Random.Next(Chars.Length)]).ToArray());
+	//
+	// private static string RndLenString()
+	// {
+	// 	var len = Random.Next();
+	// 	return RndString(len);
+	// }
 
-	private static string RndLenString()
+	[Theory]
+	[InlineData(-1, 0, false)]
+	[InlineData(1,  0, true)]
+	[InlineData(49, 0, true)]
+	[InlineData(50, 0, true)]
+	[InlineData(51, 0, false)]
+	public void TestSearch(int limit, object pos, bool succeed)
 	{
-		var len = Random.Next();
-		return RndString(len);
-	}
-
-	[Fact]
-	public void TestSearch()
-	{
-		var anonId = RndString(18);
-		var q      = RndString(10);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next();
 		try
 		{
-			_client.NewSession(anonId);
-			_client.Search(q, limit, pos);
+			if (!succeed)
+				Assert.Throws<TenorException>(() => _client.Search("lorem ipsum", limit, $"{pos}"));
+			else
+				Assert.NotNull(_client.Search("lorem ipsum", limit, pos.ToString()));
 		}
 		catch (TenorException e)
 		{
-			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-										$"q: {q}\n"           +
-										$"limit: {limit}\n"   +
-										$"pos: {pos}");
-			_testOutputHelper.WriteLine(e.ToString());
-			throw;
-		}
-	}
-	[Fact]
-	public async Task TestSearchAsync()
-	{
-		var anonId = RndString(18);
-		var q      = RndString(10);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next();
-		try
-		{
-			_client.NewSession(anonId);
-			await _client.SearchAsync(q, limit, pos);
-		}
-		catch (TenorException e)
-		{
-			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-										$"q: {q}\n"           +
-										$"limit: {limit}\n"   +
+			_testOutputHelper.WriteLine("anonId: 00000000000000000\n" +
+										"q: lorem ipsum\n"            +
+										$"limit: {limit}\n"           +
 										$"pos: {pos}");
 			_testOutputHelper.WriteLine(e.ToString());
 			throw;
 		}
 	}
 
-	[Fact]
-	public void TestTrending()
+	[Theory]
+	[InlineData(-1, 0, false)]
+	[InlineData(1,  0, true)]
+	[InlineData(49, 0, true)]
+	[InlineData(50, 0, true)]
+	[InlineData(51, 0, false)]
+	public async Task TestSearchAsync(int limit, object pos, bool succeed)
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
-			_client.Trending();
+			if (!succeed)
+				await Assert.ThrowsAsync<TenorException>(async ()
+					=> await _client.SearchAsync("lorem ipsum", limit, $"{pos}"));
+			else
+				Assert.NotNull(await _client.SearchAsync("lorem ipsum", limit, pos.ToString()));
+			await _client.SearchAsync("lorem ipsum", limit, pos.ToString());
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine("anonId: 00000000000000000\n" +
+										"q: lorem ipsum\n"            +
+										$"limit: {limit}\n"           +
+										$"pos: {pos}");
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Theory]
+	[InlineData(-1, 0, false)]
+	[InlineData(1,  0, true)]
+	[InlineData(49, 0, true)]
+	[InlineData(50, 0, true)]
+	[InlineData(51, 0, false)]
+	public void TestTrending(int limit, object pos, bool succeed)
+	{
+		try
+		{
+			if (!succeed)
+				Assert.Throws<TenorException>(() => _client.Trending(limit, pos.ToString()));
+			else
+				Assert.NotNull(_client.Trending(limit, pos.ToString()));
 		}
 		catch (TenorException e)
 		{
@@ -91,13 +108,18 @@ public class IntegrationTests
 			throw;
 		}
 	}
-	[Fact]
-	public async Task TestTrendingAsync()
+
+	[Theory]
+	[InlineData(-1, 0, false)]
+	[InlineData(1,  0, true)]
+	[InlineData(49, 0, true)]
+	[InlineData(50, 0, true)]
+	[InlineData(51, 0, false)]
+	public async Task TestTrendingAsync(int limit, object pos, bool succeed)
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
-			await _client.TrendingAsync();
+			await _client.TrendingAsync(limit, pos.ToString());
 		}
 		catch (TenorException e)
 		{
@@ -111,7 +133,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			_client.Categories(Type.emoji);
 		}
 		catch (TenorException e)
@@ -120,13 +141,12 @@ public class IntegrationTests
 			throw;
 		}
 	}
-	
+
 	[Fact]
 	public async Task TestCategoriesEmojiAsync()
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			await _client.CategoriesAsync(Type.emoji);
 		}
 		catch (TenorException e)
@@ -141,7 +161,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			_client.Categories();
 		}
 		catch (TenorException e)
@@ -150,13 +169,12 @@ public class IntegrationTests
 			throw;
 		}
 	}
-	
+
 	[Fact]
 	public async Task TestCategoriesFeaturedAsync()
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			await _client.CategoriesAsync();
 		}
 		catch (TenorException e)
@@ -171,7 +189,6 @@ public class IntegrationTests
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			_client.Categories(Type.trending);
 		}
 		catch (TenorException e)
@@ -180,13 +197,12 @@ public class IntegrationTests
 			throw;
 		}
 	}
-	
+
 	[Fact]
 	public async Task TestCategoriesTrendingAsync()
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
 			await _client.CategoriesAsync(Type.trending);
 		}
 		catch (TenorException e)
@@ -196,28 +212,17 @@ public class IntegrationTests
 		}
 	}
 
-	[Fact]
-	public void TestAutoComplete()
+	[Theory]
+	[InlineData(-1, false)]
+	[InlineData(1,  true)]
+	[InlineData(49, true)]
+	[InlineData(50, true)]
+	[InlineData(51, false)]
+	public void TestAutoComplete(int limit, bool succeed)
 	{
 		try
 		{
-			_client.NewSession(RndString(18));
-			_client.AutoComplete(RndString(10), Random.Next(50));
-		}
-		catch (TenorException e)
-		{
-			_testOutputHelper.WriteLine(e.ToString());
-			throw;
-		}
-	}
-	
-	[Fact]
-	public async Task TestAutoCompleteAsync()
-	{
-		try
-		{
-			_client.NewSession(RndString(18));
-			await _client.AutoCompleteAsync(RndString(10), Random.Next(50));
+			_client.AutoComplete("lorem ipsum", limit);
 		}
 		catch (TenorException e)
 		{
@@ -226,18 +231,17 @@ public class IntegrationTests
 		}
 	}
 
-	[Fact]
-	public void TestGetGifs()
+	[Theory]
+	[InlineData(-1, false)]
+	[InlineData(1,  true)]
+	[InlineData(49, true)]
+	[InlineData(50, true)]
+	[InlineData(51, false)]
+	public async Task TestAutoCompleteAsync(int limit, bool succeed)
 	{
-		var anonId = RndString(18);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
-			var result = _client.Search("test", limit, pos);
-
-			_client.GetGifs(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
+			await _client.AutoCompleteAsync("lorem ipsum", limit);
 		}
 		catch (TenorException e)
 		{
@@ -245,19 +249,41 @@ public class IntegrationTests
 			throw;
 		}
 	}
-	
-	[Fact]
-	public async Task TestGetGifsAsync()
+
+	[Theory]
+	[InlineData(-1, 0, false)]
+	[InlineData(1,  0, true)]
+	[InlineData(49, 0, true)]
+	[InlineData(50, 0, true)]
+	[InlineData(51, 0, false)]
+	public void TestGetGifs(int limit, object pos, bool succeed)
 	{
-		var anonId = RndString(18);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
-			var result = await _client.SearchAsync("test", limit, pos);
+			var result = _client.Search("lorem ipsum", pos: 0);
 
-			await _client.GetGifsAsync(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
+			_client.GetGifs(limit, pos.ToString(), result.GifResults.Select(o => o.Id).ToArray());
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
+
+	[Theory]
+	[InlineData(-1, 0, false)]
+	[InlineData(1,  0, true)]
+	[InlineData(49, 0, true)]
+	[InlineData(50, 0, true)]
+	[InlineData(51, 0, false)]
+	public async Task TestGetGifsAsync(int limit, object pos, bool succeed)
+	{
+		try
+		{
+			var result = await _client.SearchAsync("lorem ipsum", pos: 0);
+
+			await _client.GetGifsAsync(limit, pos.ToString(), result.GifResults.Select(o => o.Id).ToArray());
 		}
 		catch (TenorException e)
 		{
@@ -269,16 +295,12 @@ public class IntegrationTests
 	[Fact]
 	public void TestRegisterShare()
 	{
-		var anonId = RndString(18);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
-			var result = _client.Search("test", limit, pos);
+			var result = _client.Search("lorem ipsum", pos: 0);
 			var id     = result.GifResults.First().Id;
 
-			_client.RegisterShare(id, "test");
+			_client.RegisterShare(id, "lorem ipsum");
 		}
 		catch (TenorException e)
 		{
@@ -286,20 +308,16 @@ public class IntegrationTests
 			throw;
 		}
 	}
-	
+
 	[Fact]
 	public async Task TestRegisterShareAsync()
 	{
-		var anonId = RndString(18);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
-			var result = await _client.SearchAsync("test", limit, pos);
+			var result = await _client.SearchAsync("lorem ipsum", pos: 0);
 			var id     = result.GifResults.First().Id;
 
-			await _client.RegisterShareAsync(id, "test");
+			await _client.RegisterShareAsync(id, "lorem ipsum");
 		}
 		catch (TenorException e)
 		{
@@ -308,36 +326,17 @@ public class IntegrationTests
 		}
 	}
 
-	[Fact]
-	public void TestSearchSuggestions()
+	[Theory]
+	[InlineData(-1, false)]
+	[InlineData(1,  true)]
+	[InlineData(49, true)]
+	[InlineData(50, true)]
+	[InlineData(51, false)]
+	public void TestSearchSuggestions(int limit, bool succeed)
 	{
-		var anonId = RndString(18);
-		var q      = RndString(10);
-		var limit  = Random.Next(1, 50);
 		try
 		{
-			_client.NewSession(anonId);
-
-			_client.SearchSuggestions(q, limit);
-		}
-		catch (TenorException e)
-		{
-			_testOutputHelper.WriteLine(e.ToString());
-			throw;
-		}
-	}
-	
-	[Fact]
-	public async Task TestSearchSuggestionsAsync()
-	{
-		var anonId = RndString(18);
-		var q      = RndString(10);
-		var limit  = Random.Next(1, 50);
-		try
-		{
-			_client.NewSession(anonId);
-
-			await _client.SearchSuggestionsAsync(q, limit);
+			_client.SearchSuggestions("lorem ipsum", limit);
 		}
 		catch (TenorException e)
 		{
@@ -346,87 +345,108 @@ public class IntegrationTests
 		}
 	}
 
-	[Fact]
-	public void TestTrendingTerms()
+	[Theory]
+	[InlineData(-1, false)]
+	[InlineData(1,  true)]
+	[InlineData(49, true)]
+	[InlineData(50, true)]
+	[InlineData(51, false)]
+	public async Task TestSearchSuggestionsAsync(int limit, bool succeed)
 	{
-		var anonId = RndString(18);
-		var limit  = Random.Next(1, 50);
 		try
 		{
-			_client.NewSession(anonId);
+			await _client.SearchSuggestionsAsync("lorem ipsum", limit);
+		}
+		catch (TenorException e)
+		{
+			_testOutputHelper.WriteLine(e.ToString());
+			throw;
+		}
+	}
 
+	[Theory]
+	[InlineData(-1, false)]
+	[InlineData(1,  true)]
+	[InlineData(49, true)]
+	[InlineData(50, true)]
+	[InlineData(51, false)]
+	public void TestTrendingTerms(int limit, bool succeed)
+	{
+		try
+		{
 			_client.TrendingTerms(limit);
 		}
 		catch (TenorException e)
 		{
-			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+			_testOutputHelper.WriteLine("anonId: 00000000000000000\n" +
 										$"limit: {limit}");
 			_testOutputHelper.WriteLine(e.ToString());
 			throw;
 		}
 	}
-	
-	[Fact]
-	public async Task TestTrendingTermsAsync()
+
+	[Theory]
+	[InlineData(-1, false)]
+	[InlineData(1,  true)]
+	[InlineData(49, true)]
+	[InlineData(50, true)]
+	[InlineData(51, false)]
+	public async Task TestTrendingTermsAsync(int limit, bool succeed)
 	{
-		var anonId = RndString(18);
-		var limit  = Random.Next(1, 50);
 		try
 		{
-			_client.NewSession(anonId);
-
 			await _client.TrendingTermsAsync(limit);
 		}
 		catch (TenorException e)
 		{
-			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
+			_testOutputHelper.WriteLine("anonId: 00000000000000000\n" +
 										$"limit: {limit}");
 			_testOutputHelper.WriteLine(e.ToString());
 			throw;
 		}
 	}
 
-	[Fact]
-	public void TestGetRandomGifs()
+	[Theory]
+	[InlineData(-1, 0, false)]
+	[InlineData(1,  0, true)]
+	[InlineData(49, 0, true)]
+	[InlineData(50, 0, true)]
+	[InlineData(51, 0, false)]
+	public void TestGetRandomGifs(int limit, object pos, bool succeed)
 	{
-		var anonId = RndString(18);
-		var q      = RndString(10);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
-			_client.GetRandomGifs(q, limit, pos);
+			_client.GetRandomGifs("lorem ipsum", limit, pos.ToString());
 		}
 		catch (TenorException e)
 		{
-			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-										$"q: {q}\n"           +
-										$"limit: {limit}\n"   +
+			_testOutputHelper.WriteLine("anonId: 00000000000000000\n" +
+										"q: lorem ipsum\n"            +
+										$"limit: {limit}\n"           +
 										$"pos: {pos}");
 			_testOutputHelper.WriteLine(e.ToString());
 
 			throw;
 		}
 	}
-	
-	[Fact]
-	public async Task TestGetRandomGifsAsync()
+
+	[Theory]
+	[InlineData(-1, 0, false)]
+	[InlineData(1,  0, true)]
+	[InlineData(49, 0, true)]
+	[InlineData(50, 0, true)]
+	[InlineData(51, 0, false)]
+	public async Task TestGetRandomGifsAsync(int limit, object pos, bool succeed)
 	{
-		var anonId = RndString(18);
-		var q      = RndString(10);
-		var limit  = Random.Next(1, 50);
-		var pos    = Random.Next(10);
 		try
 		{
-			_client.NewSession(anonId);
-			await _client.GetRandomGifsAsync(q, limit, pos);
+			await _client.GetRandomGifsAsync("lorem ipsum", limit, pos.ToString());
 		}
 		catch (TenorException e)
 		{
-			_testOutputHelper.WriteLine($"anonId: {anonId}\n" +
-										$"q: {q}\n"           +
-										$"limit: {limit}\n"   +
+			_testOutputHelper.WriteLine("anonId: 00000000000000000\n" +
+										"q: lorem ipsum\n"            +
+										$"limit: {limit}\n"           +
 										$"pos: {pos}");
 			_testOutputHelper.WriteLine(e.ToString());
 
@@ -447,7 +467,7 @@ public class IntegrationTests
 			throw;
 		}
 	}
-	
+
 	[Fact]
 	public async Task TestGetNewAnonIdAsync()
 	{

@@ -1,18 +1,30 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using TenorSharp.Enums;
 using TenorSharp.ResponseObjects;
 
 namespace TenorSharp.SearchResults;
 
+/// <summary>
+/// A list of GIFs returned by a Tenor API Query.
+/// </summary>
 public class Gif
 {
 	internal TenorClient Client;
 	internal int         Count;
 	internal string[]    Ids;
-	internal string      Term;
+
+	/// <summary>
+	/// catch-all for any not explicitly defined fields
+	/// </summary>
+	[JsonExtensionData]
+	public IDictionary<string, JToken> Members;
+
+	internal string Term;
 
 	internal SearchTypes Type;
 
