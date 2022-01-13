@@ -4,9 +4,8 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-
 using RestSharp;
+using RestSharp.Serializers.NewtonsoftJson;
 
 using TenorSharp.Enums;
 using TenorSharp.ResponseObjects;
@@ -22,70 +21,12 @@ namespace TenorSharp;
 /// <summary>
 /// A Client for the Tenor API
 /// </summary>
-public class TenorClient
+public partial class TenorClient
 {
 	private const string BaseUri = "https://g.tenor.com/v1/";
 
-	private static readonly Locale DefaultLocale = new("en_US");
-
-	private readonly RestRequest _anonIdRequest = new(Endpoints.AnonId);
-
-	/// <summary>
-	///     client key for privileged API access
-	/// </summary>
-	private readonly string _apiKey;
-
-
-	private readonly RestRequest _autocompleteRequest =
-		new(Endpoints.Autocomplete);
-
-	private readonly RestRequest _categoryRequest =
-		new(Endpoints.Categories);
 
 	private readonly RestClient _client;
-
-	private readonly RestRequest _gifsRequest = new(Endpoints.Gifs);
-
-	private readonly RestRequest _rndGifRequest = new(Endpoints.Random);
-
-	private readonly RestRequest _searchRequest = new(Endpoints.Search);
-
-	private readonly RestRequest _shareRequest =
-		new(Endpoints.RegisterShare);
-
-	private readonly RestRequest _suggestionRequest =
-		new(Endpoints.SearchSuggestions);
-
-	private readonly RestRequest _trendingRequest =
-		new(Endpoints.Trending);
-
-	private readonly RestRequest _trendingTermsRequest =
-		new(Endpoints.TrendingTerms);
-
-	/// <summary>
-	///     specify the anonymous_id tied to the given user
-	/// </summary>
-	private string _anonId;
-
-	/// <summary>
-	///     Filter the response <see cref="GifObject"/> list to only include GIFs with aspect ratios that fit with in the selected range.
-	/// </summary>
-	private AspectRatio _arRange;
-
-	/// <summary>
-	///     specify the content safety filter level
-	/// </summary>
-	private ContentFilter _contentFilter;
-
-	/// <summary>
-	///     specify default language to interpret search string
-	/// </summary>
-	private Locale _locale;
-
-	/// <summary>
-	///     Reduce the Number of GIF formats returned in the <see cref="GifObject"/> list.
-	/// </summary>
-	private MediaFilter _mediaFilter;
 
 
 	/// <summary>
@@ -106,21 +47,17 @@ public class TenorClient
 		MediaFilter   mediaFilter   = MediaFilter.off,
 		string        anonId        = null,
 		HttpClient    testClient    = null
-	)
+	) : this(new TenorConfiguration
+			 {
+				 ApiKey        = apiKey,
+				 AnonId        = anonId,
+				 ArRange       = arRange,
+				 ContentFilter = contentFilter,
+				 MediaFilter   = mediaFilter,
+				 Locale        = locale ?? default
+			 },
+		testClient)
 	{
-		_locale = locale ?? DefaultLocale;
-		_client = testClient == null
-					  ? new RestClient(BaseUri)
-					  : new RestClient(testClient, new RestClientOptions(BaseUri));
-		_client.UseSerializer<RestSharp.Serializers.NewtonsoftJson.JsonNetSerializer>();
-		_arRange       = arRange;
-		_contentFilter = contentFilter;
-		_mediaFilter   = mediaFilter;
-		_apiKey        = apiKey;
-
-		_anonId = anonId;
-
-		_client = _client.AddDefaultParameter("key", apiKey, ParameterType.QueryString);
 	}
 
 	/// <summary>
@@ -128,51 +65,145 @@ public class TenorClient
 	/// </summary>
 	/// <param name="configuration">an object containing the configuration for the Client</param>
 	/// <param name="testClient">a custom HttpClient object to use instead of the default, mainly for testing purposes.</param>
-	public TenorClient(TenorConfiguration configuration, HttpClient testClient = null) : this(configuration.ApiKey,
-		configuration.Locale,
-		configuration.ArRange,
-		configuration
-		   .ContentFilter,
-		configuration
-		   .MediaFilter,
-		configuration.AnonId,
-		testClient)
+	public TenorClient(TenorConfiguration configuration = default, HttpClient testClient = null)
 	{
+		var options = new RestClientOptions { ThrowOnAnyError = true, BaseUrl = new Uri(BaseUri) };
+		_client = testClient == null ? new RestClient(options) : new RestClient(testClient, options);
+		_client.UseNewtonsoftJson();
+
+
+		_client = _client.AddDefaultParameter("key",     Configuration.ApiKey);
+		_client = _client.AddDefaultParameter("anon_id", Configuration.AnonId);
+
+		Configuration = configuration;
 	}
 
 
 	/// <summary>
-	/// Modifies the Locale of the Client
+	///     Gets a File as a Stream from a URL
 	/// </summary>
-	public Locale Locale { get; set; }
+	/// <param name="url">the URL</param>
+	/// <returns>the Stream</returns>
+
+	// ReSharper disable once MemberCanBePrivate.Global
+	public static async Task<Stream> GetMediaStreamAsync(Uri url)
+	{
+		var req    = WebRequest.Create(url);
+		var stream = (await req.GetResponseAsync()).GetResponseStream();
+		return stream;
+	}
+
+
+	#region Configuration
+
+	/// <summary>
+	/// an object containing the configuration for the Client
+	/// </summary>
+	public TenorConfiguration Configuration { get; set; }
 
 	/// <summary>
 	/// Modifies the Content Filter of the Client
 	/// </summary>
-	public ContentFilter ContentFilter { get; set; }
+	public ContentFilter ContentFilter
+	{
+		get => Configuration.ContentFilter;
+		set
+		{
+			var tenorConfiguration = Configuration;
+			tenorConfiguration.ContentFilter = value;
+		}
+	}
 
 	/// <summary>
 	/// Modifies the Media Filter of the Client
 	/// </summary>
-	public MediaFilter MediaFilter { get; set; }
+	public MediaFilter MediaFilter
+	{
+		get => Configuration.MediaFilter;
+		set
+		{
+			var tenorConfiguration = Configuration;
+			tenorConfiguration.MediaFilter = value;
+		}
+	}
 
 	/// <summary>
 	/// Modifies the Aspect Ratio Range of the Client
 	/// </summary>
-	public AspectRatio AspectRatioRange { get; set; }
+	public AspectRatio AspectRatioRange
+	{
+		get => Configuration.ArRange;
+		set
+		{
+			var tenorConfiguration = Configuration;
+			tenorConfiguration.ArRange = value;
+		}
+	}
 
 
-	/// <inheritdoc cref="SearchAsync(string,int,int)"/>
-	public Gif Search(string q, int limit = 20, int pos = 0)
-		=> SearchAsync(q, limit, pos).GetAwaiter().GetResult();
+	#region Locale
 
-	/// <inheritdoc cref="SearchAsync(string,int,string)"/>
-	public async Task<Gif> SearchAsync(string q, int limit = 20, int pos = 0)
-		=> await SearchAsync(q, limit, pos.ToString());
+	/// <summary>
+	/// Modifies the Locale of the Client
+	/// </summary>
+	public Locale Locale
+	{
+		get => Configuration.Locale;
+		set
+		{
+			var tenorConfiguration = Configuration;
+			tenorConfiguration.Locale = value;
+		}
+	}
 
-	/// <inheritdoc cref="SearchAsync(string,int,string)"/>
-	public Gif Search(string q, int limit = 20, string pos = "0")
-		=> SearchAsync(q, limit, pos).GetAwaiter().GetResult();
+	/// <summary>
+	/// Resets the Clients Locale to en_us
+	/// </summary>
+	public void ResetLocale()
+	{
+		var tenorConfiguration = Configuration;
+		tenorConfiguration.Locale = new Locale();
+	}
+
+	#endregion
+
+	#region Sessions
+
+	/// <summary>
+	///     Start new Session with an Anonymous ID
+	/// </summary>
+	/// <param name="anonId">the Anonymous ID</param>
+	/// <exception cref="TenorException">Thrown when anonId is invalid</exception>TODO
+	public void NewSession(string anonId)
+	{
+		var tenorConfiguration = Configuration;
+		tenorConfiguration.AnonId = anonId.Length switch
+		{
+			>= 16 and <= 32 => anonId,
+			var _ => throw new TenorException("Anon_id must be between 16 and 32 characters.", 1)
+		};
+	}
+
+	/// <summary>
+	/// Returns the Current Anonymous ID
+	/// </summary>
+	/// <returns>the current anonymous ID</returns>
+	public string GetSession() => Configuration.AnonId;
+
+	/// <summary>
+	/// Clears the current Anonymous ID
+	/// </summary>
+	public void ClearSession()
+	{
+		var tenorConfiguration = Configuration;
+		tenorConfiguration.AnonId = null;
+	}
+
+	#endregion
+
+	#endregion
+
+	#region API Calls
 
 	//TODO: Add Sticker Search
 	/// <summary>
@@ -187,53 +218,43 @@ public class TenorClient
 	///     pos is not an index and may be an integer, float, or string
 	/// </param>
 	/// <returns>a Tenor Gif Response</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<Gif> SearchAsync(string q, int limit = 20, string pos = "0")
 	{
-		_searchRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
-					  .AddOrUpdateParameter("limit",         limit,          ParameterType.QueryString)
-					  .AddOrUpdateParameter("pos",           pos,            ParameterType.QueryString)
-					  .AddOrUpdateParameter("ar_range",      _arRange,       ParameterType.QueryString)
-					  .AddOrUpdateParameter("contentfilter", _contentFilter, ParameterType.QueryString)
-					  .AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
-		if (_anonId != null)
-			_searchRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_searchRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
+		var request = new RestRequest(Endpoints.Search)
+					 .AddParameter("q",             q)
+					 .AddParameter("limit",         limit)
+					 .AddParameter("pos",           pos)
+					 .AddParameter("ar_range",      Configuration.ArRange)
+					 .AddParameter("contentfilter", Configuration.ContentFilter)
+					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.MediaFilter != MediaFilter.off)
+			request.AddParameter("media_filter", Configuration.MediaFilter);
 		if (limit is < 1 or > 50)
 			throw new TenorException("Limit must be between 1 and 50.", 1);
 
-
-		var result  = await _client.ExecuteAsync(_searchRequest);
-		var content = result.Content;
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			var res = JsonConvert.DeserializeObject<Gif>(content);
-			if (res == null)
-				throw new Exception("API Returned null");
-			res.Client = this;
-			res.Term   = q;
-			res.Count  = limit;
-			res.Type   = SearchTypes.search;
-			return res;
+			var result = await _client.GetAsync<Gif>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			result.Client = this;
+			result.Term   = q;
+			result.Count  = limit;
+			result.Type   = SearchTypes.search;
+			return result;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-
-	/// <inheritdoc cref="TrendingAsync(int, string)"/>
-	public Gif Trending(int limit = 20, string pos = "0")
-		=> TrendingAsync(limit, pos).GetAwaiter().GetResult();
 
 	//TODO: Add Trending Stickers
 	/// <summary>
@@ -247,47 +268,39 @@ public class TenorClient
 	///     pos is not an index and may be an integer, float, or string
 	/// </param>
 	/// <returns>a Tenor Gif Response</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<Gif> TrendingAsync(int limit = 20, string pos = "0")
 	{
-		_trendingRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
-						.AddOrUpdateParameter("pos",           pos,            ParameterType.QueryString)
-						.AddOrUpdateParameter("ar_range",      _arRange,       ParameterType.QueryString)
-						.AddOrUpdateParameter("contentfilter", _contentFilter, ParameterType.QueryString)
-						.AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
-		if (_anonId != null)
-			_trendingRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_trendingRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
-		var result  = await _client.ExecuteAsync(_trendingRequest);
-		var content = result.Content;
+		var request = new RestRequest(Endpoints.Trending)
+					 .AddParameter("limit",         limit)
+					 .AddParameter("pos",           pos)
+					 .AddParameter("ar_range",      Configuration.ArRange)
+					 .AddParameter("contentfilter", Configuration.ContentFilter)
+					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.MediaFilter != MediaFilter.off)
+			request.AddParameter("media_filter", Configuration.MediaFilter);
 
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			var res = JsonConvert.DeserializeObject<Gif>(content);
-			if (res == null)
-				throw new Exception("API Returned null");
-			res.Client = this;
-			res.Count  = limit;
-			res.Type   = SearchTypes.trending;
-			return res;
+			var result = await _client.GetAsync<Gif>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			result.Client = this;
+			result.Count  = limit;
+			result.Type   = SearchTypes.trending;
+			return result;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-	/// <inheritdoc cref="CategoriesAsync"/>
-	public Category Categories(Type type = Type.featured)
-		=> CategoriesAsync(type).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of GIF categories associated with the provided type.
@@ -297,37 +310,33 @@ public class TenorClient
 	/// </summary>
 	/// <param name="type">determines the type of categories returned</param>
 	/// <returns>a Tenor Category Response</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<Category> CategoriesAsync(Type type = Type.featured)
 	{
-		_categoryRequest.AddOrUpdateParameter("Type", type, ParameterType.QueryString)
-						.AddOrUpdateParameter("contentfilter", _contentFilter, ParameterType.QueryString)
-						.AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
-		if (_anonId != null)
-			_categoryRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
+		var request = new RestRequest(Endpoints.Categories)
+					 .AddParameter("type",          type)
+					 .AddParameter("contentfilter", Configuration.ContentFilter)
+					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
 
-		var result  = await _client.ExecuteAsync(_categoryRequest);
-		var content = result.Content;
+
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Category>(content);
+			var result = await _client.GetAsync<Category>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			return result;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-	/// <inheritdoc cref="SearchSuggestionsAsync"/>
-	public Terms SearchSuggestions(string q, int limit = 20)
-		=> SearchSuggestionsAsync(q, limit).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of alternative search terms given a search term.
@@ -338,41 +347,36 @@ public class TenorClient
 	/// <param name="q">a search string</param>
 	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
 	/// <returns>an Array of Search Terms</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<Terms> SearchSuggestionsAsync(string q, int limit = 20)
 	{
-		_suggestionRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
-						  .AddOrUpdateParameter("limit",  limit,   ParameterType.QueryString)
-						  .AddOrUpdateParameter("locale", _locale, ParameterType.QueryString);
-		if (_anonId != null)
-			_suggestionRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_suggestionRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
+		var request = new RestRequest(Endpoints.SearchSuggestions)
+					 .AddParameter("q",      q)
+					 .AddParameter("limit",  limit)
+					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
+
+		if (Configuration.MediaFilter != MediaFilter.off)
+			request.AddParameter("media_filter", Configuration.MediaFilter);
 
 
-		var result  = await _client.ExecuteAsync(_suggestionRequest);
-		var content = result.Content;
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			var terms = JsonConvert.DeserializeObject<Terms>(content);
-			return terms;
+			var result = await _client.GetAsync<Terms>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			return result;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error!.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-	/// <inheritdoc cref="AutoCompleteAsync"/>
-	public Terms AutoComplete(string q, int limit = 20)
-		=> AutoCompleteAsync(q, limit).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of completed search terms given a partial search term.
@@ -381,37 +385,33 @@ public class TenorClient
 	/// <param name="q">a search string</param>
 	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
 	/// <returns>an Array of <see cref="Terms">Search Terms</see></returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<Terms> AutoCompleteAsync(string q, int limit = 20)
 	{
-		_autocompleteRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString)
-							.AddOrUpdateParameter("limit",  limit,   ParameterType.QueryString)
-							.AddOrUpdateParameter("locale", _locale, ParameterType.QueryString);
+		var request = new RestRequest(Endpoints.Autocomplete)
+					 .AddParameter("q",      q)
+					 .AddParameter("limit",  limit)
+					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
 
-		if (_anonId != null)
-			_autocompleteRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
 
-		var result  = await _client.ExecuteAsync(_autocompleteRequest);
-		var content = result.Content;
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Terms>(content);
+			var result = await _client.GetAsync<Terms>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			return result;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error!.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-	/// <inheritdoc cref="TrendingTermsAsync"/>
-	public Terms TrendingTerms(int limit = 20) => TrendingTermsAsync(limit).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a json object containing a list of the current trending search terms.
@@ -419,39 +419,33 @@ public class TenorClient
 	/// </summary>
 	/// <param name="limit">fetch up to a specified number of results (max: 50).</param>
 	/// <returns>an Array of Search Terms</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
-	/// <exception cref="System.Exception">thrown when the Tenor API returns Invalid Data</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
+	/// <exception cref="System.Exception">thrown when the Tenor API returns Invalid Data</exception>TODO
 	public async Task<Terms> TrendingTermsAsync(int limit = 20)
 	{
-		_trendingTermsRequest.AddOrUpdateParameter("limit", limit, ParameterType.QueryString)
-							 .AddOrUpdateParameter("locale", _locale, ParameterType.QueryString);
-
-		if (_anonId != null)
-			_trendingTermsRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
+		var request = new RestRequest(Endpoints.TrendingTerms)
+					 .AddParameter("limit",  limit)
+					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
 
 
-		var result  = await _client.ExecuteAsync(_trendingTermsRequest);
-		var content = result.Content;
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Terms>(content);
+			var result = await _client.GetAsync<Terms>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			return result;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error!.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-	/// <inheritdoc cref="RegisterShareAsync"/>
-	public string RegisterShare(string id, string q = null)
-		=> RegisterShareAsync(id, q).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Register a user’s sharing of a GIF.
@@ -459,60 +453,34 @@ public class TenorClient
 	/// <param name="id">the “id” of a GIF_OBJECT</param>
 	/// <param name="q">The search string that lead to this share</param>
 	/// <returns>the Share Status</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<string> RegisterShareAsync(string id, string q = null)
 	{
-		_shareRequest.AddOrUpdateParameter("id", id)
-					 .AddOrUpdateParameter("locale", _locale, ParameterType.QueryString);
-
-		if (_anonId != null)
-			_shareRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-
+		var request = new RestRequest(Endpoints.RegisterShare)
+					 .AddParameter("id",     id)
+					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
 
 		if (q != null)
-			_shareRequest.AddOrUpdateParameter("q", q);
+			request.AddParameter("q", q);
 
-		var result  = await _client.ExecuteAsync(_shareRequest);
-		var content = result.Content;
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Register>(content)?.ShareStatus;
+			var result = await _client.GetAsync<Register>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			return result.ShareStatus;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error!.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-
-	/// <inheritdoc cref="GetGifsAsync(int,int,string[])"/>
-	public Gif GetGifs(
-		int             limit = 20,
-		int             pos   = 0,
-		params string[] ids
-	) => GetGifsAsync(limit, pos, ids).GetAwaiter().GetResult();
-
-	/// <inheritdoc cref="GetGifsAsync(int,string,string[])"/>
-	public async Task<Gif> GetGifsAsync(
-		int             limit = 20,
-		int             pos   = 0,
-		params string[] ids
-	)
-		=> await GetGifsAsync(limit, pos.ToString(), ids);
-
-	/// <inheritdoc cref="GetGifsAsync(int,string,string[])"/>
-	public Gif GetGifs(
-		int             limit = 20,
-		string          pos   = "0",
-		params string[] ids
-	) => GetGifsAsync(limit, pos, ids).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get the GIF(s) for the corresponding id(s)
@@ -525,53 +493,44 @@ public class TenorClient
 	/// </param>
 	/// <param name="ids">a comma separated list of GIF IDs (max: 50)</param>
 	/// <returns>a Tenor Gif Response</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<Gif> GetGifsAsync(
 		int             limit = 20,
 		string          pos   = "0",
 		params string[] ids
 	)
 	{
-		_gifsRequest.AddOrUpdateParameter("ids", string.Join(',', ids), ParameterType.QueryString)
-					.AddOrUpdateParameter("limit",         limit).AddOrUpdateParameter("pos", pos)
-					.AddOrUpdateParameter("ar_range",      _arRange,       ParameterType.QueryString)
-					.AddOrUpdateParameter("contentfilter", _contentFilter, ParameterType.QueryString)
-					.AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
-		if (_anonId != null)
-			_gifsRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_gifsRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
+		var request = new RestRequest(Endpoints.Gifs)
+					 .AddParameter("ids",           string.Join(',', ids))
+					 .AddParameter("limit",         limit).AddParameter("pos", pos)
+					 .AddParameter("ar_range",      Configuration.ArRange)
+					 .AddParameter("contentfilter", Configuration.ContentFilter)
+					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.MediaFilter != MediaFilter.off)
+			request.AddParameter("media_filter", Configuration.MediaFilter);
 
-
-		var result  = await _client.ExecuteAsync(_gifsRequest);
-		var content = result.Content;
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			var res = JsonConvert.DeserializeObject<Gif>(content);
-			if (res == null)
-				throw new Exception("API Returned null");
-			res.Client = this;
-			res.Count  = limit;
-			res.Ids    = ids;
-			res.Type   = SearchTypes.getGifs;
-			return res;
+			var result = await _client.GetAsync<Gif>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			result.Client = this;
+			result.Ids    = ids;
+			result.Count  = limit;
+			result.Type   = SearchTypes.search;
+			return result;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-
-	/// <inheritdoc cref="GetNewAnonIdAsync"/>
-	public string GetNewAnonId() => Task.Run(GetNewAnonIdAsync).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get an anonymous ID for a new user.
@@ -579,40 +538,29 @@ public class TenorClient
 	///     any future sessions.
 	/// </summary>
 	/// <returns>a Random AnonId</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<string> GetNewAnonIdAsync()
 	{
-		var result  = await _client.ExecuteAsync(_anonIdRequest);
-		var content = result.Content;
+		var request = new RestRequest(Endpoints.AnonId);
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Session>(content)?.AnonId;
+			var result = await _client.GetAsync<Session>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+
+			return result.AnonId;
 		}
-		catch (JsonException)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, error!.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-
-	/// <inheritdoc cref="GetRandomGifsAsync(string,int,int)"/>
-	public Gif GetRandomGifs(string q, int limit = 20, int pos = 0)
-		=> GetRandomGifsAsync(q, limit, pos).GetAwaiter().GetResult();
-
-	/// <inheritdoc cref="GetRandomGifsAsync(string,int,string)" />
-	public async Task<Gif> GetRandomGifsAsync(string q, int limit = 20, int pos = 0)
-		=> await GetRandomGifsAsync(q, limit, pos.ToString());
-
-	/// <inheritdoc cref="GetRandomGifsAsync(string,int,string)"/>
-	public Gif GetRandomGifs(string q, int limit = 20, string pos = "0")
-		=> GetRandomGifsAsync(q, limit, pos).GetAwaiter().GetResult();
 
 	/// <summary>
 	///     Get a randomized list of GIFs for a given search term. This differs from the search endpoint which returns a rank
@@ -626,159 +574,40 @@ public class TenorClient
 	///     pos is not an index and may be an integer, float, or string
 	/// </param>
 	/// <returns>a Tenor Gif Response</returns>
-	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>
+	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<Gif> GetRandomGifsAsync(string q, int limit = 20, string pos = "0")
 	{
-		_rndGifRequest.AddOrUpdateParameter("q", q, ParameterType.QueryString).AddOrUpdateParameter("limit", limit)
-					  .AddOrUpdateParameter("pos",           pos)
-					  .AddOrUpdateParameter("ar_range",      _arRange,       ParameterType.QueryString)
-					  .AddOrUpdateParameter("contentfilter", _contentFilter, ParameterType.QueryString)
-					  .AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_rndGifRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
-		if (_anonId != null)
-			_rndGifRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-
-		var result  = await _client.ExecuteAsync(_rndGifRequest);
-		var content = result.Content;
+		var request = new RestRequest(Endpoints.Random)
+					 .AddParameter("q",             q)
+					 .AddParameter("limit",         limit)
+					 .AddParameter("pos",           pos)
+					 .AddParameter("ar_range",      Configuration.ArRange)
+					 .AddParameter("contentfilter", Configuration.ContentFilter)
+					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.MediaFilter != MediaFilter.off)
+			request.AddParameter("media_filter", Configuration.MediaFilter);
 
 		try
 		{
-			if (content == null)
-				throw new Exception("API Returned null");
-			var res = JsonConvert.DeserializeObject<Gif>(content);
-			if (res == null)
-				throw new Exception("API Returned null");
-			res.Client = this;
-			res.Term   = q;
-			res.Count  = limit;
-			res.Type   = SearchTypes.getRandom;
-			return res;
+			var result = await _client.GetAsync<Gif>(request);
+			if (result == null)
+				throw new NullReferenceException("API Returned null");
+			result.Client = this;
+			result.Term   = q;
+			result.Count  = limit;
+			result.Type   = SearchTypes.search;
+			return result;
 		}
-		catch (JsonException e)
+		catch (DeserializationException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
-			throw new TenorException(error!.Error, e, error!.Code);
-		}
-		catch (Exception e)
-		{
-			throw new TenorException(e.Message, e, e.HResult);
+			if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+				throw;
+			var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			if (tenorException != null)
+				throw tenorException;
+			throw;
 		}
 	}
 
-
-	/// <summary>
-	///     Start new Session with an Anonymous ID
-	/// </summary>
-	/// <param name="anonId">the Anonymous ID</param>
-	/// <exception cref="TenorException">Thrown when anonId is invalid</exception>
-	public void NewSession(string anonId) => _anonId = anonId.Length switch
-	{
-		>= 16 and <= 32 => anonId,
-		var _ => throw new TenorException("Anon_id must be between 16 and 32 characters.", 1)
-	};
-
-	/// <summary>
-	/// Returns the Current Anonymous ID
-	/// </summary>
-	/// <returns>the current anonymous ID</returns>
-	public string GetSession() => _anonId;
-
-	/// <summary>
-	/// Sets the locale of the Client
-	/// </summary>
-	/// <param name="locale">the new Locale</param>
-	[Obsolete("SetLocale is deprecated, please use Locale instead.")]
-	public void SetLocale(string locale) => Locale = new Locale(locale);
-
-
-	/// <inheritdoc cref="SetLocale(string)"/>
-	[Obsolete("SetLocale is deprecated, please use Locale instead.")]
-	public void SetLocale(Locale locale) => Locale = locale;
-
-	/// <summary>
-	/// GetLocale is deprecated, please use Locale instead.
-	/// </summary>
-	/// <returns></returns>
-	[Obsolete("GetLocale is deprecated, please use Locale instead.")]
-	public Locale GetLocale() => Locale;
-
-	/// <summary>
-	/// Resets the Clients Locale to en_us
-	/// </summary>
-	public void ResetLocale() => Locale = DefaultLocale;
-
-	/// <summary>
-	/// Clears the current Anonymous ID
-	/// </summary>
-	public void ClearSession() => _anonId = null;
-
-	/// <summary>
-	/// SetContentFilter is deprecated, please use ContentFilter instead.
-	/// </summary>
-	/// <param name="filter"></param>
-	[Obsolete("SetContentFilter is deprecated, please use ContentFilter instead.")]
-	public void SetContentFilter(ContentFilter filter) => ContentFilter = filter;
-
-	/// <summary>
-	/// GetContentFilter is deprecated, please use ContentFilter instead.
-	/// </summary>
-	/// <returns></returns>
-	[Obsolete("GetContentFilter is deprecated, please use ContentFilter instead.")]
-	public ContentFilter GetContentFilter() => ContentFilter;
-
-	/// <summary>
-	/// SetMediaFilter is deprecated, please use MediaFilter instead.
-	/// </summary>
-	/// <param name="filter"></param>
-	[Obsolete("SetMediaFilter is deprecated, please use MediaFilter instead.")]
-	public void SetMediaFilter(MediaFilter filter) => MediaFilter = filter;
-
-	/// <summary>
-	/// GetMediaFilter is deprecated, please use MediaFilter instead.
-	/// </summary>
-	/// <returns></returns>
-	[Obsolete("GetMediaFilter is deprecated, please use MediaFilter instead.")]
-	public MediaFilter GetMediaFilter() => MediaFilter;
-
-	/// <summary>
-	/// SetAspectRatioRange is deprecated, please use AspectRatioRange instead.
-	/// </summary>
-	/// <param name="ratio"></param>
-	[Obsolete("SetAspectRatioRange is deprecated, please use AspectRatioRange instead.")]
-	public void SetAspectRatioRange(AspectRatio ratio) => AspectRatioRange = ratio;
-
-	/// <summary>
-	/// GetAspectRatioRange is deprecated, please use AspectRatioRange instead.
-	/// </summary>
-	/// <returns></returns>
-	[Obsolete("GetAspectRatioRange is deprecated, please use AspectRatioRange instead.")]
-	public AspectRatio GetAspectRatioRange() => AspectRatioRange;
-
-	/// <summary>
-	/// Returns the currently used API Key
-	/// </summary>
-	/// <returns></returns>
-	public string GetApiKey() => _apiKey;
-
-	/// <summary>
-	///     Gets a File as a Stream from a URL
-	/// </summary>
-	/// <param name="url">the URL</param>
-	/// <returns>the Stream</returns>
-	public static Stream GetMediaStream(Uri url)
-	{
-		var req    = WebRequest.Create(url);
-		var stream = req.GetResponse().GetResponseStream();
-		return stream;
-	}
-
-	/// <inheritdoc cref="GetMediaStream(Uri)" />
-	public static Stream GetMediaStream(string url) => GetMediaStream(new Uri(url));
-
-
-	// .AddOrUpdateParameter("anon_id",       null,              ParameterType.QueryString)
-	// .AddOrUpdateParameter("ar_range",      AspectRatio.all,   ParameterType.QueryString)
-	// .AddOrUpdateParameter("contentfilter", ContentFilter.off, ParameterType.QueryString)
-	// .AddOrUpdateParameter("locale",        DefaultLocale,     ParameterType.QueryString)
+	#endregion
 }

@@ -6,7 +6,7 @@ namespace TenorSharp;
 /// <summary>
 /// an object containing the configuration for the Client
 /// </summary>
-public class TenorConfiguration
+public record struct TenorConfiguration
 {
 	/// <summary>
 	/// client key for privileged API access

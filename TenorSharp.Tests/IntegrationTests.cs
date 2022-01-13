@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using TenorSharp.Enums;
+using TenorSharp.ResponseObjects;
 
 using Xunit;
 using Xunit.Abstractions;

@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using RichardSzalay.MockHttp;
 
 using TenorSharp.Enums;
+using TenorSharp.ResponseObjects;
 
 using Xunit;
 using Xunit.Abstractions;

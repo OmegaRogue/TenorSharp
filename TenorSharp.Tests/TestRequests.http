@@ -3,3 +3,7 @@ https://api.tenor.com/v1/search?key={{TENOR_KEY}}&q=test&limit=50&pos=m
 ###
 
 https://api.tenor.com/v1/search?key={{TENOR_KEY}}&q=lorem ipsum&anon_id=00000000000000000
+
+###
+
+https://g.tenor.com/v1/anonid?key={{TENOR_KEY}}&anon_id=00000000000000000
