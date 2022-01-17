@@ -124,9 +124,9 @@ public class UnitTests
 		catch
 			(TenorException e)
 		{
-			_testOutputHelper.WriteLine($"anonId: 00000000000000000\n" +
-										$"q: lorem ipsum\n"            +
-										$"limit: {limit}\n"            +
+			_testOutputHelper.WriteLine("anonId: 00000000000000000\n" +
+										"q: lorem ipsum\n"            +
+										$"limit: {limit}\n"           +
 										$"pos: {pos}");
 			_testOutputHelper.WriteLine(e.ToString());
 			throw;
@@ -142,7 +142,7 @@ public class UnitTests
 		var pos    = Random.Next();
 		try
 		{
-			await _client.SearchAsync(q, limit, pos);
+			await _client.SearchAsync(q, limit, pos.ToString());
 		}
 		catch (TenorException e)
 		{
@@ -301,9 +301,9 @@ public class UnitTests
 		var anonId = RndString(18);
 		try
 		{
-			var result = _client.Search("test", 20, 0);
+			var result = _client.Search("test", 20, "0");
 
-			_client.GetGifs(20, 1, result.GifResults.Select(o => o.Id).ToArray());
+			_client.GetGifs(20, "1", result.GifResults.Select(o => o.Id).ToArray());
 		}
 		catch (TenorException e)
 		{
@@ -320,9 +320,9 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			var result = await _client.SearchAsync("test", limit, pos);
+			var result = await _client.SearchAsync("test", limit, pos.ToString());
 
-			await _client.GetGifsAsync(limit, pos, result.GifResults.Select(o => o.Id).ToArray());
+			await _client.GetGifsAsync(limit, pos.ToString(), result.GifResults.Select(o => o.Id).ToArray());
 		}
 		catch (TenorException e)
 		{
@@ -339,7 +339,7 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			var result = _client.Search("test", limit, pos);
+			var result = _client.Search("test", limit, pos.ToString());
 			var id     = result.GifResults.First().Id;
 
 			_client.RegisterShare(id, "test");
@@ -359,7 +359,7 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			var result = await _client.SearchAsync("test", limit, pos);
+			var result = await _client.SearchAsync("test", limit, pos.ToString());
 			var id     = result.GifResults.First().Id;
 
 			await _client.RegisterShareAsync(id, "test");
@@ -380,7 +380,7 @@ public class UnitTests
 		try
 		{
 			var test = _client.SearchSuggestions(q, limit);
-			_testOutputHelper.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(test));
+			_testOutputHelper.WriteLine(JsonConvert.SerializeObject(test));
 		}
 		catch (TenorException e)
 		{
@@ -451,7 +451,7 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			_client.GetRandomGifs(q, limit, pos);
+			_client.GetRandomGifs(q, limit, pos.ToString());
 		}
 		catch (TenorException e)
 		{
@@ -474,7 +474,7 @@ public class UnitTests
 		var pos    = Random.Next(10);
 		try
 		{
-			await _client.GetRandomGifsAsync(q, limit, pos);
+			await _client.GetRandomGifsAsync(q, limit, pos.ToString());
 		}
 		catch (TenorException e)
 		{

@@ -261,7 +261,7 @@ public class IntegrationTests
 	{
 		try
 		{
-			var result = _client.Search("lorem ipsum", pos: 0);
+			var result = _client.Search("lorem ipsum", pos: "0");
 
 			_client.GetGifs(limit, pos.ToString(), result.GifResults.Select(o => o.Id).ToArray());
 		}
@@ -282,7 +282,7 @@ public class IntegrationTests
 	{
 		try
 		{
-			var result = await _client.SearchAsync("lorem ipsum", pos: 0);
+			var result = await _client.SearchAsync("lorem ipsum", pos: "0");
 
 			await _client.GetGifsAsync(limit, pos.ToString(), result.GifResults.Select(o => o.Id).ToArray());
 		}
@@ -298,7 +298,7 @@ public class IntegrationTests
 	{
 		try
 		{
-			var result = _client.Search("lorem ipsum", pos: 0);
+			var result = _client.Search("lorem ipsum", pos: "0");
 			var id     = result.GifResults.First().Id;
 
 			_client.RegisterShare(id, "lorem ipsum");
@@ -315,7 +315,7 @@ public class IntegrationTests
 	{
 		try
 		{
-			var result = await _client.SearchAsync("lorem ipsum", pos: 0);
+			var result = await _client.SearchAsync("lorem ipsum", pos: "0");
 			var id     = result.GifResults.First().Id;
 
 			await _client.RegisterShareAsync(id, "lorem ipsum");

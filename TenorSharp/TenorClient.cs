@@ -4,8 +4,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+using Newtonsoft.Json;
+
 using RestSharp;
-using RestSharp.Serializers.NewtonsoftJson;
 
 using TenorSharp.Enums;
 using TenorSharp.ResponseObjects;
@@ -54,7 +55,7 @@ public partial class TenorClient
 				 ArRange       = arRange,
 				 ContentFilter = contentFilter,
 				 MediaFilter   = mediaFilter,
-				 Locale        = locale ?? default
+				 Locale        = locale ?? new Locale()
 			 },
 		testClient)
 	{
@@ -67,15 +68,13 @@ public partial class TenorClient
 	/// <param name="testClient">a custom HttpClient object to use instead of the default, mainly for testing purposes.</param>
 	public TenorClient(TenorConfiguration configuration = default, HttpClient testClient = null)
 	{
-		var options = new RestClientOptions { ThrowOnAnyError = true, BaseUrl = new Uri(BaseUri) };
+		Configuration = configuration ?? new TenorConfiguration();
+		var options = new RestClientOptions { ThrowOnDeserializationError = true, BaseUrl = new Uri(BaseUri) };
 		_client = testClient == null ? new RestClient(options) : new RestClient(testClient, options);
-		_client.UseNewtonsoftJson();
 
 
 		_client = _client.AddDefaultParameter("key",     Configuration.ApiKey);
 		_client = _client.AddDefaultParameter("anon_id", Configuration.AnonId);
-
-		Configuration = configuration;
 	}
 
 
@@ -99,7 +98,7 @@ public partial class TenorClient
 	/// <summary>
 	/// an object containing the configuration for the Client
 	/// </summary>
-	public TenorConfiguration Configuration { get; set; }
+	public TenorConfiguration Configuration { get; }
 
 	/// <summary>
 	/// Modifies the Content Filter of the Client
@@ -107,11 +106,7 @@ public partial class TenorClient
 	public ContentFilter ContentFilter
 	{
 		get => Configuration.ContentFilter;
-		set
-		{
-			var tenorConfiguration = Configuration;
-			tenorConfiguration.ContentFilter = value;
-		}
+		set => Configuration.ContentFilter = value;
 	}
 
 	/// <summary>
@@ -120,11 +115,7 @@ public partial class TenorClient
 	public MediaFilter MediaFilter
 	{
 		get => Configuration.MediaFilter;
-		set
-		{
-			var tenorConfiguration = Configuration;
-			tenorConfiguration.MediaFilter = value;
-		}
+		set => Configuration.MediaFilter = value;
 	}
 
 	/// <summary>
@@ -133,11 +124,7 @@ public partial class TenorClient
 	public AspectRatio AspectRatioRange
 	{
 		get => Configuration.ArRange;
-		set
-		{
-			var tenorConfiguration = Configuration;
-			tenorConfiguration.ArRange = value;
-		}
+		set => Configuration.ArRange = value;
 	}
 
 
@@ -149,21 +136,13 @@ public partial class TenorClient
 	public Locale Locale
 	{
 		get => Configuration.Locale;
-		set
-		{
-			var tenorConfiguration = Configuration;
-			tenorConfiguration.Locale = value;
-		}
+		set => Configuration.Locale = value;
 	}
 
 	/// <summary>
 	/// Resets the Clients Locale to en_us
 	/// </summary>
-	public void ResetLocale()
-	{
-		var tenorConfiguration = Configuration;
-		tenorConfiguration.Locale = new Locale();
-	}
+	public void ResetLocale() => Configuration.Locale = new Locale();
 
 	#endregion
 
@@ -174,15 +153,11 @@ public partial class TenorClient
 	/// </summary>
 	/// <param name="anonId">the Anonymous ID</param>
 	/// <exception cref="TenorException">Thrown when anonId is invalid</exception>TODO
-	public void NewSession(string anonId)
+	public void NewSession(string anonId) => Configuration.AnonId = anonId.Length switch
 	{
-		var tenorConfiguration = Configuration;
-		tenorConfiguration.AnonId = anonId.Length switch
-		{
-			>= 16 and <= 32 => anonId,
-			var _ => throw new TenorException("Anon_id must be between 16 and 32 characters.", 1)
-		};
-	}
+		>= 16 and <= 32 => anonId,
+		var _ => throw new TenorException("Anon_id must be between 16 and 32 characters.", 1)
+	};
 
 	/// <summary>
 	/// Returns the Current Anonymous ID
@@ -193,11 +168,7 @@ public partial class TenorClient
 	/// <summary>
 	/// Clears the current Anonymous ID
 	/// </summary>
-	public void ClearSession()
-	{
-		var tenorConfiguration = Configuration;
-		tenorConfiguration.AnonId = null;
-	}
+	public void ClearSession() => Configuration.AnonId = null;
 
 	#endregion
 
@@ -224,7 +195,7 @@ public partial class TenorClient
 		var request = new RestRequest(Endpoints.Search)
 					 .AddParameter("q",             q)
 					 .AddParameter("limit",         limit)
-					 .AddParameter("pos",           pos)
+					 .AddParameter("pos",           pos == "" ? "0" : pos)
 					 .AddParameter("ar_range",      Configuration.ArRange)
 					 .AddParameter("contentfilter", Configuration.ContentFilter)
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
@@ -253,6 +224,15 @@ public partial class TenorClient
 				throw tenorException;
 			throw;
 		}
+		catch (JsonSerializationException e)
+		{
+			// if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
+			// 	throw;
+			// var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
+			// if (tenorException != null)
+			// 	throw tenorException;
+			throw;
+		}
 	}
 
 
@@ -273,13 +253,14 @@ public partial class TenorClient
 	{
 		var request = new RestRequest(Endpoints.Trending)
 					 .AddParameter("limit",         limit)
-					 .AddParameter("pos",           pos)
+					 .AddParameter("pos",           pos == "" ? "0" : pos)
 					 .AddParameter("ar_range",      Configuration.ArRange)
 					 .AddParameter("contentfilter", Configuration.ContentFilter)
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
-
+		if (limit is < 1 or > 50)
+			throw new TenorException("Limit must be between 1 and 50.", 1);
 		try
 		{
 			var result = await _client.GetAsync<Gif>(request);
@@ -357,6 +338,8 @@ public partial class TenorClient
 
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
+		if (limit is < 1 or > 50)
+			throw new TenorException("Limit must be between 1 and 50.", 1);
 
 
 		try
@@ -392,7 +375,8 @@ public partial class TenorClient
 					 .AddParameter("q",      q)
 					 .AddParameter("limit",  limit)
 					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
-
+		if (limit is < 1 or > 50)
+			throw new TenorException("Limit must be between 1 and 50.", 1);
 
 		try
 		{
@@ -426,8 +410,8 @@ public partial class TenorClient
 		var request = new RestRequest(Endpoints.TrendingTerms)
 					 .AddParameter("limit",  limit)
 					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
-
-
+		if (limit is < 1 or > 50)
+			throw new TenorException("Limit must be between 1 and 50.", 1);
 		try
 		{
 			var result = await _client.GetAsync<Terms>(request);
@@ -502,13 +486,14 @@ public partial class TenorClient
 	{
 		var request = new RestRequest(Endpoints.Gifs)
 					 .AddParameter("ids",           string.Join(',', ids))
-					 .AddParameter("limit",         limit).AddParameter("pos", pos)
+					 .AddParameter("limit",         limit).AddParameter("pos", pos == "" ? "0" : pos)
 					 .AddParameter("ar_range",      Configuration.ArRange)
 					 .AddParameter("contentfilter", Configuration.ContentFilter)
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
-
+		if (limit is < 1 or > 50)
+			throw new TenorException("Limit must be between 1 and 50.", 1);
 		try
 		{
 			var result = await _client.GetAsync<Gif>(request);
@@ -580,16 +565,18 @@ public partial class TenorClient
 		var request = new RestRequest(Endpoints.Random)
 					 .AddParameter("q",             q)
 					 .AddParameter("limit",         limit)
-					 .AddParameter("pos",           pos)
+					 .AddParameter("pos",           pos == "" ? "0" : pos)
 					 .AddParameter("ar_range",      Configuration.ArRange)
 					 .AddParameter("contentfilter", Configuration.ContentFilter)
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
-
+		if (limit is < 1 or > 50)
+			throw new TenorException("Limit must be between 1 and 50.", 1);
 		try
 		{
-			var result = await _client.GetAsync<Gif>(request);
+			var response = await _client.ExecuteAsync<Gif>(request);
+			var result   = response.Data;
 			if (result == null)
 				throw new NullReferenceException("API Returned null");
 			result.Client = this;
