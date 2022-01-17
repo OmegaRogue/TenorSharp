@@ -5,6 +5,8 @@ using TenorSharp.SearchResults;
 
 using Type = TenorSharp.Enums.Type;
 
+// ReSharper disable UnusedMethodReturnValue.Global
+
 namespace TenorSharp;
 
 public partial class TenorClient

@@ -73,8 +73,6 @@ public partial class TenorClient
 
 
 		_client = _client.AddDefaultParameter("key", Configuration.ApiKey);
-		_client = _client.AddDefaultParameter("anon_id",
-			Configuration.AnonId); //TODO: Add anon_id to every request individually
 	}
 
 
@@ -199,6 +197,8 @@ public partial class TenorClient
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 		if (limit is < 1 or > 50)
 			throw new TenorException("Limit must be between 1 and 50.", 1);
 
@@ -248,6 +248,8 @@ public partial class TenorClient
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 		if (limit is < 1 or > 50)
 			throw new TenorException("Limit must be between 1 and 50.", 1);
 		try
@@ -287,6 +289,8 @@ public partial class TenorClient
 					 .AddParameter("type",          type)
 					 .AddParameter("contentfilter", Configuration.ContentFilter)
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 
 
 		try
@@ -327,6 +331,8 @@ public partial class TenorClient
 
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 		if (limit is < 1 or > 50)
 			throw new TenorException("Limit must be between 1 and 50.", 1);
 
@@ -366,6 +372,8 @@ public partial class TenorClient
 					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
 		if (limit is < 1 or > 50)
 			throw new TenorException("Limit must be between 1 and 50.", 1);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 
 		try
 		{
@@ -399,6 +407,8 @@ public partial class TenorClient
 		var request = new RestRequest(Endpoints.TrendingTerms)
 					 .AddParameter("limit",  limit)
 					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 		if (limit is < 1 or > 50)
 			throw new TenorException("Limit must be between 1 and 50.", 1);
 		try
@@ -434,6 +444,8 @@ public partial class TenorClient
 		var request = new RestRequest(Endpoints.RegisterShare)
 					 .AddParameter("id",     id)
 					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 
 		if (q != null)
 			request.AddParameter("q", q);
@@ -484,6 +496,8 @@ public partial class TenorClient
 					 .AddParameter("ar_range",      Configuration.ArRange)
 					 .AddParameter("contentfilter", Configuration.ContentFilter)
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
 		if (limit is < 1 or > 50)
@@ -564,6 +578,8 @@ public partial class TenorClient
 					 .AddParameter("ar_range",      Configuration.ArRange)
 					 .AddParameter("contentfilter", Configuration.ContentFilter)
 					 .AddParameter("locale",        Configuration.Locale, ParameterType.QueryString);
+		if (Configuration.AnonId != null)
+			request.AddParameter("anon_id", Configuration.AnonId);
 		if (Configuration.MediaFilter != MediaFilter.off)
 			request.AddParameter("media_filter", Configuration.MediaFilter);
 		if (limit is < 1 or > 50)
