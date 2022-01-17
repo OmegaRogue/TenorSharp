@@ -1,10 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
-using Newtonsoft.Json;
 
 using RestSharp;
 
@@ -224,15 +223,6 @@ public partial class TenorClient
 				throw tenorException;
 			throw;
 		}
-		catch (JsonSerializationException e)
-		{
-			// if (e.Response.Content == null || !e.Response.Content.Contains("\"error\""))
-			// 	throw;
-			// var tenorException = _client.Deserialize<TenorException>(e.Response).Data;
-			// if (tenorException != null)
-			// 	throw tenorException;
-			throw;
-		}
 	}
 
 
@@ -440,6 +430,8 @@ public partial class TenorClient
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
 	public async Task<string> RegisterShareAsync(string id, string q = null)
 	{
+		if (string.IsNullOrEmpty(id))
+			throw new ArgumentNullException(nameof(id), "Supplied ID was null or empty.");
 		var request = new RestRequest(Endpoints.RegisterShare)
 					 .AddParameter("id",     id)
 					 .AddParameter("locale", Configuration.Locale, ParameterType.QueryString);
@@ -484,6 +476,9 @@ public partial class TenorClient
 		params string[] ids
 	)
 	{
+		ids = ids.Where(s => !string.IsNullOrEmpty(s)).ToArray();
+		if (ids.Length == 0)
+			throw new ArgumentNullException(nameof(ids), "All IDs supplied were null or empty.");
 		var request = new RestRequest(Endpoints.Gifs)
 					 .AddParameter("ids",           string.Join(',', ids))
 					 .AddParameter("limit",         limit).AddParameter("pos", pos == "" ? "0" : pos)
@@ -494,6 +489,7 @@ public partial class TenorClient
 			request.AddParameter("media_filter", Configuration.MediaFilter);
 		if (limit is < 1 or > 50)
 			throw new TenorException("Limit must be between 1 and 50.", 1);
+
 		try
 		{
 			var result = await _client.GetAsync<Gif>(request);

@@ -11,7 +11,9 @@ using TenorSharp.ResponseObjects;
 namespace TenorSharp.Tests
 {
 	[TestFixture]
-	[Parallelizable(ParallelScope.All)]
+
+	//[Parallelizable(ParallelScope.All)]
+	[Category("Integration Tests")]
 	public class TenorClientTests
 	{
 		[SetUp]
@@ -25,7 +27,13 @@ namespace TenorSharp.Tests
 		// ReSharper disable once UnusedMember.Global
 		public string[] StringValues =
 		{
-			null, "", "1", "0000000000000", "0000000000000000000", "0000000000000000000000000000000000000000"
+			null,
+			"",
+			"1",
+			"0000000000000",
+			"0000000000000000000",
+			"0000000000000000000000000000000000000000",
+			"12846096"
 		};
 
 		[DatapointSource]
@@ -316,14 +324,13 @@ namespace TenorSharp.Tests
 		}
 
 		[Theory]
-		public void RegisterShareAsync_Success(string id, string q)
+		public void RegisterShareAsync_Success(string q)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(id, Is.Not.Empty);
 
 			// Act
-			void Act() => tenorClient.RegisterShare(id, q);
+			void Act() => tenorClient.RegisterShare("12846096", q);
 
 			// Assert
 			Assert.That(Act, Throws.Nothing);
@@ -339,7 +346,9 @@ namespace TenorSharp.Tests
 			void Act() => tenorClient.RegisterShare("", q);
 
 			// Assert
-			Assert.That(Act, Throws.Nothing);
+			Assert.That(Act,
+				Throws.TypeOf<ArgumentNullException>().With.Message
+					  .EqualTo("Supplied ID was null or empty. (Parameter 'id')"));
 		}
 
 		[Theory]
@@ -348,6 +357,10 @@ namespace TenorSharp.Tests
 			// Arrange
 			var tenorClient = CreateTenorClient();
 			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
+			Assume.That(pos,   Is.Not.Empty);
+			Assume.That(pos,   Is.Not.EqualTo(null));
+			Assume.That(id,    Is.Not.Empty);
+			Assume.That(id,    Is.Not.EqualTo(null));
 
 			// Act
 			void Act() => tenorClient.GetGifs(limit, pos, id, id);
@@ -362,7 +375,10 @@ namespace TenorSharp.Tests
 			// Arrange
 			var tenorClient = CreateTenorClient();
 			Assume.That(limit, Is.LessThanOrEqualTo(0).Or.GreaterThan(50));
-
+			Assume.That(pos,   Is.Not.EqualTo(null));
+			Assume.That(id,    Is.Not.EqualTo(null));
+			Assume.That(pos,   Is.Not.Empty);
+			Assume.That(id,    Is.Not.Empty);
 
 			// Act
 			void Act() => tenorClient.GetGifs(limit, pos, id, id);
@@ -374,17 +390,35 @@ namespace TenorSharp.Tests
 		}
 
 		[Theory]
-		public void GetGifsAsync_EmptyPos_Exception(int limit, string pos, string id)
+		public void GetGifsAsync_EmptyPos_Exception(int limit, string id)
+		{
+			// Arrange
+			var tenorClient = CreateTenorClient();
+			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
+			Assume.That(id,    Is.Not.EqualTo(null));
+			Assume.That(id,    Is.Not.Empty);
+
+			// Act
+			void Act() => tenorClient.GetGifs(limit, "", id, id);
+
+			// Assert
+			Assert.That(Act, Throws.Nothing);
+		}
+
+		[Theory]
+		public void GetGifsAsync_EmptyId_Exception(int limit, string pos)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
 			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
-			void Act() => tenorClient.GetGifs(limit, pos, id, id);
+			void Act() => tenorClient.GetGifs(limit, pos, "", "");
 
 			// Assert
-			Assert.That(Act, Throws.Nothing);
+			Assert.That(Act,
+				Throws.TypeOf<ArgumentNullException>().With.Message
+					  .EqualTo("All IDs supplied were null or empty. (Parameter 'ids')"));
 		}
 
 		[Test]
