@@ -17,10 +17,10 @@ namespace TenorSharp.Tests
 	public class TenorClientTests
 	{
 		[SetUp]
-		public void SetUp() => subHttpClient = Substitute.For<HttpClient>();
+		public void SetUp() => _subHttpClient = Substitute.For<HttpClient>();
 
 		private const string     AnonIdZero = "000000000000000000";
-		private       HttpClient subHttpClient;
+		private       HttpClient _subHttpClient;
 
 		[DatapointSource]
 
@@ -111,7 +111,7 @@ namespace TenorSharp.Tests
 			var tenorClient = CreateTenorClient();
 
 			// Act
-			void Act() => tenorClient.NewSession(null);
+			void Act() => tenorClient.NewSession(null!);
 
 			// Assert
 			Assert.That(Act,

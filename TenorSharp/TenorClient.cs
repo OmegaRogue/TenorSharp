@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 using RestSharp;
@@ -41,12 +41,12 @@ public partial class TenorClient
 	/// <param name="testClient">a custom HttpClient object to use instead of the default, mainly for testing purposes.</param>
 	public TenorClient(
 		string        apiKey,
-		Locale        locale        = null,
+		Locale?       locale        = null,
 		AspectRatio   arRange       = AspectRatio.all,
 		ContentFilter contentFilter = ContentFilter.off,
 		MediaFilter   mediaFilter   = MediaFilter.off,
-		string        anonId        = null,
-		HttpClient    testClient    = null
+		string?       anonId        = null,
+		HttpClient?   testClient    = null
 	) : this(new TenorConfiguration
 			 {
 				 ApiKey        = apiKey,
@@ -65,15 +65,16 @@ public partial class TenorClient
 	/// </summary>
 	/// <param name="configuration">an object containing the configuration for the Client</param>
 	/// <param name="testClient">a custom HttpClient object to use instead of the default, mainly for testing purposes.</param>
-	public TenorClient(TenorConfiguration configuration = default, HttpClient testClient = null)
+	public TenorClient(TenorConfiguration? configuration = default, HttpClient? testClient = null)
 	{
 		Configuration = configuration ?? new TenorConfiguration();
 		var options = new RestClientOptions { ThrowOnDeserializationError = true, BaseUrl = new Uri(BaseUri) };
 		_client = testClient == null ? new RestClient(options) : new RestClient(testClient, options);
 
 
-		_client = _client.AddDefaultParameter("key",     Configuration.ApiKey);
-		_client = _client.AddDefaultParameter("anon_id", Configuration.AnonId);
+		_client = _client.AddDefaultParameter("key", Configuration.ApiKey);
+		_client = _client.AddDefaultParameter("anon_id",
+			Configuration.AnonId); //TODO: Add anon_id to every request individually
 	}
 
 
@@ -81,15 +82,13 @@ public partial class TenorClient
 	///     Gets a File as a Stream from a URL
 	/// </summary>
 	/// <param name="url">the URL</param>
+	/// <param name="cancellationToken">an Optional CancellationToken</param>
 	/// <returns>the Stream</returns>
 
 	// ReSharper disable once MemberCanBePrivate.Global
-	public static async Task<Stream> GetMediaStreamAsync(Uri url)
-	{
-		var req    = WebRequest.Create(url);
-		var stream = (await req.GetResponseAsync()).GetResponseStream();
-		return stream;
-	}
+	public static async Task<Stream> GetMediaStreamAsync(Uri url, CancellationToken? cancellationToken = null)
+		=> await (await new HttpClient().GetAsync(url, cancellationToken ?? CancellationToken.None)).Content
+			  .ReadAsStreamAsync();
 
 
 	#region Configuration
@@ -162,7 +161,7 @@ public partial class TenorClient
 	/// Returns the Current Anonymous ID
 	/// </summary>
 	/// <returns>the current anonymous ID</returns>
-	public string GetSession() => Configuration.AnonId;
+	public string? GetSession() => Configuration.AnonId;
 
 	/// <summary>
 	/// Clears the current Anonymous ID
@@ -428,7 +427,7 @@ public partial class TenorClient
 	/// <param name="q">The search string that lead to this share</param>
 	/// <returns>the Share Status</returns>
 	/// <exception cref="TenorException">thrown when the Tenor API returns an Error</exception>TODO
-	public async Task<string> RegisterShareAsync(string id, string q = null)
+	public async Task<string> RegisterShareAsync(string id, string? q = null)
 	{
 		if (string.IsNullOrEmpty(id))
 			throw new ArgumentNullException(nameof(id), "Supplied ID was null or empty.");

@@ -16,11 +16,11 @@ public class Category
 	/// catch-all for any not explicitly defined fields
 	/// </summary>
 	[JsonExtensionData]
-	public IDictionary<string, JToken> Members;
+	public IDictionary<string, JToken>? Members;
 
 	/// <summary>
 	///     an array of CategoryObjects where the “name” field has been translated to the passed in locale language.
 	/// </summary>
 	[JsonProperty("tags", Required = Required.Always)]
-	public CategoryObject[] Tags { get; set; }
+	public CategoryObject[] Tags { get; set; } = null!;
 }

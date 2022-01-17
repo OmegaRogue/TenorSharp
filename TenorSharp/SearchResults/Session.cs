@@ -12,5 +12,5 @@ public class Session
 	///     This allows for tracking without the use of personally identifiable information
 	/// </summary>
 	[JsonProperty("anon_id", Required = Required.Always)]
-	public string AnonId { get; set; }
+	public string AnonId { get; set; } = null!;
 }

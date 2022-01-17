@@ -20,5 +20,5 @@ public class HttpError
 	///     a string message describing the error
 	/// </summary>
 	[JsonProperty("error")]
-	public string Error;
+	public string? Error;
 }

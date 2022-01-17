@@ -14,11 +14,11 @@ public class Terms
 	/// catch-all for any not explicitly defined fields
 	/// </summary>
 	[JsonExtensionData]
-	public IDictionary<string, JToken> Members;
+	public IDictionary<string, JToken>? Members;
 
 	/// <summary>
 	///     An array of suggested search terms.
 	/// </summary>
 	[JsonProperty("results", Required = Required.Always)]
-	public string[] SearchTerms;
+	public string[] SearchTerms = null!;
 }

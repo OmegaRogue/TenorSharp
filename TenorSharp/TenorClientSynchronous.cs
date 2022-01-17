@@ -30,7 +30,7 @@ public partial class TenorClient
 	public Terms TrendingTerms(int limit = 20) => TrendingTermsAsync(limit).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="RegisterShareAsync"/>
-	public string RegisterShare(string id, string q = null) => RegisterShareAsync(id, q).GetAwaiter().GetResult();
+	public string RegisterShare(string id, string? q = null) => RegisterShareAsync(id, q).GetAwaiter().GetResult();
 
 	/// <inheritdoc cref="GetGifsAsync"/>
 	public Gif GetGifs(int limit = 20, string pos = "0", params string[] ids)

@@ -11,5 +11,5 @@ public class Register
 	///     set to “ok” if share registration was successful
 	/// </summary>
 	[JsonProperty("status", Required = Required.Always)]
-	public string ShareStatus { get; set; }
+	public string ShareStatus { get; set; } = null!;
 }

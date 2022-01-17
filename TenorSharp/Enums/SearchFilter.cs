@@ -1,4 +1,7 @@
-﻿namespace TenorSharp.Enums;
+﻿// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Global
+
+namespace TenorSharp.Enums;
 
 /// <summary>
 /// Parameter to switch between a GIF search and a Sticker search

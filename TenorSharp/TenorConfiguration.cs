@@ -11,12 +11,12 @@ public record TenorConfiguration
 	/// <summary>
 	/// client key for privileged API access
 	/// </summary>
-	public string ApiKey { get; set; }
+	public string ApiKey { get; set; } = "a";
 
 	/// <summary>
 	/// specify the anonymous_id tied to the given user
 	/// </summary>
-	public string AnonId { get; set; }
+	public string? AnonId { get; set; }
 
 	/// <summary>
 	/// Filter the response <see cref="GifObject"/> list to only include GIFs with aspect ratios that fit with in the selected range.
