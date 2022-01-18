@@ -12,11 +12,10 @@ namespace TenorSharp.Tests
 {
 	[TestFixture]
 	[Parallelizable(ParallelScope.All)]
-	[Category("Integration Tests Long")]
+	[Category("Integration Tests")]
 	[Author("OmegaRogue", "omegarogue@omegavoid.codes")]
 	[TestOf(typeof(TenorClient))]
-	[Explicit]
-	public class TenorClientTests
+	public class TenorClientTests2
 	{
 		[SetUp]
 		public void SetUp() => _subHttpClient = Substitute.For<HttpClient>();
@@ -65,7 +64,6 @@ namespace TenorSharp.Tests
 			// Arrange
 			var tenorClient = CreateTenorClient();
 			tenorClient.Locale = new Locale("de_de");
-			Assume.That(tenorClient.Locale, Is.Not.EqualTo(new Locale("en_us")));
 
 			// Act
 			tenorClient.ResetLocale();
@@ -74,28 +72,28 @@ namespace TenorSharp.Tests
 			Assert.That(new Locale("en_us"), Is.EqualTo(tenorClient.Locale));
 		}
 
-		[Theory]
-		public void NewSession_AnonIdLength_Successful(string anonId)
+		[Test]
+		public void NewSession_AnonIdLength_Successful()
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(anonId,        Is.Not.Null);
-			Assume.That(anonId.Length, Is.GreaterThanOrEqualTo(16).And.LessThanOrEqualTo(32));
 
 			// Act
-			tenorClient.NewSession(anonId);
+			void Act() => tenorClient.NewSession("0000000000000000000");
 
 			// Assert
-			Assert.That(() => tenorClient.NewSession(anonId), Throws.Nothing);
+			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
+		[TestCase("")]
+		[TestCase("1")]
+		[TestCase("0000000000000")]
+		[TestCase("0000000000000000000000000000000000000000")]
+		[TestCase("12846096")]
 		public void NewSession_AnonIdLength_Exception(string anonId)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(anonId,        Is.Not.EqualTo(null));
-			Assume.That(anonId.Length, Is.LessThan(16).Or.GreaterThan(32));
 
 			// Act
 			void Act() => tenorClient.NewSession(anonId);
@@ -162,13 +160,23 @@ namespace TenorSharp.Tests
 			Assert.That(tenorClient.Configuration.AnonId, Is.EqualTo(null));
 		}
 
-		[Theory]
-		[Retry(3)]
+		[TestCase(null, 20, "0")]
+		[TestCase("",   20, "0")]
+		[TestCase("1",  20, "0")]
+		[TestCase("1",  20, "0")]
+		[TestCase("1",  1,  "0")]
+		[TestCase("1",  4,  "0")]
+		[TestCase("1",  49, "0")]
+		[TestCase("1",  50, "0")]
+		[TestCase(null, 20, "0")]
+		[TestCase("1",  20, null)]
+		[TestCase("1",  20, "")]
+		[TestCase("1",  20, "0")]
+		[TestCase("1",  20, "0")]
 		public void SearchAsync_Success(string q, int limit, string pos)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
 			void Act() => tenorClient.SearchAsync(q, limit, pos).GetAwaiter().GetResult();
@@ -177,15 +185,17 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void SearchAsync_LimitOutOfRange_Exception(string q, int limit, string pos)
+
+		[TestCase(0)]
+		[TestCase(-1)]
+		[TestCase(51)]
+		public void SearchAsync_LimitOutOfRange_Exception(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.LessThanOrEqualTo(0).Or.GreaterThan(50));
 
 			// Act
-			void Act() => tenorClient.Search(q, limit, pos);
+			void Act() => tenorClient.Search("1", limit);
 
 			// Assert
 			Assert.That(Act,
@@ -193,12 +203,23 @@ namespace TenorSharp.Tests
 					  .EqualTo("Limit must be between 1 and 50."));
 		}
 
-		[Theory]
+		[TestCase(20, "0")]
+		[TestCase(20, "0")]
+		[TestCase(20, "0")]
+		[TestCase(20, "0")]
+		[TestCase(1,  "0")]
+		[TestCase(4,  "0")]
+		[TestCase(49, "0")]
+		[TestCase(50, "0")]
+		[TestCase(20, "0")]
+		[TestCase(20, null)]
+		[TestCase(20, "")]
+		[TestCase(20, "0")]
+		[TestCase(20, "0")]
 		public void TrendingAsync_Success(int limit, string pos)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
 			void Act() => tenorClient.Trending(limit, pos);
@@ -207,15 +228,16 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void TrendingAsync_LimitOutOfRange_Exception(int limit, string pos)
+		[TestCase(0)]
+		[TestCase(-1)]
+		[TestCase(51)]
+		public void TrendingAsync_LimitOutOfRange_Exception(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.LessThanOrEqualTo(0).Or.GreaterThan(50));
 
 			// Act
-			void Act() => tenorClient.Trending(limit, pos);
+			void Act() => tenorClient.Trending(limit);
 
 			// Assert
 			Assert.That(Act,
@@ -236,12 +258,17 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
+		[TestCase(null, 20)]
+		[TestCase("",   20)]
+		[TestCase("1",  20)]
+		[TestCase("1",  1)]
+		[TestCase("1",  4)]
+		[TestCase("1",  49)]
+		[TestCase("1",  50)]
 		public void SearchSuggestionsAsync_Success(string q, int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
 			void Act() => tenorClient.SearchSuggestions(q, limit);
@@ -250,15 +277,16 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void SearchSuggestionsAsync_LimitOutOfRange_Exception(string q, int limit)
+		[TestCase(0)]
+		[TestCase(-1)]
+		[TestCase(51)]
+		public void SearchSuggestionsAsync_LimitOutOfRange_Exception(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.LessThanOrEqualTo(0).Or.GreaterThan(50));
 
 			// Act
-			void Act() => tenorClient.SearchSuggestions(q, limit);
+			void Act() => tenorClient.SearchSuggestions("test", limit);
 
 			// Assert
 			Assert.That(Act,
@@ -266,12 +294,17 @@ namespace TenorSharp.Tests
 					  .EqualTo("Limit must be between 1 and 50."));
 		}
 
-		[Theory]
+		[TestCase(null, 20)]
+		[TestCase("",   20)]
+		[TestCase("1",  20)]
+		[TestCase("1",  1)]
+		[TestCase("1",  4)]
+		[TestCase("1",  49)]
+		[TestCase("1",  50)]
 		public void AutoCompleteAsync_Success(string q, int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
 			void Act() => tenorClient.AutoComplete(q, limit);
@@ -280,15 +313,16 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void AutoCompleteAsync_LimitOutOfRange_Exception(string q, int limit)
+		[TestCase(0)]
+		[TestCase(-1)]
+		[TestCase(51)]
+		public void AutoCompleteAsync_LimitOutOfRange_Exception(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.LessThanOrEqualTo(0).Or.GreaterThan(50));
 
 			// Act
-			void Act() => tenorClient.AutoComplete(q, limit);
+			void Act() => tenorClient.AutoComplete("test", limit);
 
 			// Assert
 			Assert.That(Act,
@@ -296,12 +330,15 @@ namespace TenorSharp.Tests
 					  .EqualTo("Limit must be between 1 and 50."));
 		}
 
-		[Theory]
+		[TestCase(20)]
+		[TestCase(1)]
+		[TestCase(4)]
+		[TestCase(49)]
+		[TestCase(50)]
 		public void TrendingTermsAsync_Success(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
 			void Act() => tenorClient.TrendingTerms(limit);
@@ -310,12 +347,13 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
+		[TestCase(0)]
+		[TestCase(-1)]
+		[TestCase(51)]
 		public void TrendingTermsAsync_LimitOutOfRange_Exception(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.LessThanOrEqualTo(0).Or.GreaterThan(50));
 
 			// Act
 			void Act() => tenorClient.TrendingTerms(limit);
@@ -326,7 +364,9 @@ namespace TenorSharp.Tests
 					  .EqualTo("Limit must be between 1 and 50."));
 		}
 
-		[Theory]
+		[TestCase(null)]
+		[TestCase("")]
+		[TestCase("1")]
 		public void RegisterShareAsync_Success(string q)
 		{
 			// Arrange
@@ -339,14 +379,14 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void RegisterShareAsync_EmptyId_Exception(string q)
+		[Test]
+		public void RegisterShareAsync_EmptyId_Exception()
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
 
 			// Act
-			void Act() => tenorClient.RegisterShare("", q);
+			void Act() => tenorClient.RegisterShare("");
 
 			// Assert
 			Assert.That(Act,
@@ -354,38 +394,33 @@ namespace TenorSharp.Tests
 					  .EqualTo("Supplied ID was null or empty. (Parameter 'id')"));
 		}
 
-		[Theory]
-		[Retry(3)]
-		public void GetGifsAsync_Success(int limit, string pos, string id)
+		[TestCase(20)]
+		[TestCase(1)]
+		[TestCase(4)]
+		[TestCase(49)]
+		[TestCase(50)]
+		public void GetGifsAsync_Success(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
-			Assume.That(pos,   Is.Not.Empty);
-			Assume.That(pos,   Is.Not.EqualTo(null));
-			Assume.That(id,    Is.Not.Empty);
-			Assume.That(id,    Is.Not.EqualTo(null));
 
 			// Act
-			void Act() => tenorClient.GetGifs(limit, pos, id, id);
+			void Act() => tenorClient.GetGifs(limit, "0", "12846096", "12846096");
 
 			// Assert
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void GetGifsAsync_LimitOutOfRange_Exception(int limit, string pos, string id)
+		[TestCase(0)]
+		[TestCase(-1)]
+		[TestCase(51)]
+		public void GetGifsAsync_LimitOutOfRange_Exception(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.LessThanOrEqualTo(0).Or.GreaterThan(50));
-			Assume.That(pos,   Is.Not.EqualTo(null));
-			Assume.That(id,    Is.Not.EqualTo(null));
-			Assume.That(pos,   Is.Not.Empty);
-			Assume.That(id,    Is.Not.Empty);
 
 			// Act
-			void Act() => tenorClient.GetGifs(limit, pos, id, id);
+			void Act() => tenorClient.GetGifs(limit, "0", "12846096", "12846096");
 
 			// Assert
 			Assert.That(Act,
@@ -393,32 +428,28 @@ namespace TenorSharp.Tests
 					  .EqualTo("Limit must be between 1 and 50."));
 		}
 
-		[Theory]
-		[Retry(3)]
-		public void GetGifsAsync_EmptyPos_Exception(int limit, string id)
+		[TestCase(null)]
+		[TestCase("")]
+		public void GetGifsAsync_EmptyPos_Exception(string pos)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
-			Assume.That(id,    Is.Not.EqualTo(null));
-			Assume.That(id,    Is.Not.Empty);
 
 			// Act
-			void Act() => tenorClient.GetGifs(limit, "", id, id);
+			void Act() => tenorClient.GetGifs(20, pos, "12846096", "12846096");
 
 			// Assert
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void GetGifsAsync_EmptyId_Exception(int limit, string pos)
+		[Test]
+		public void GetGifsAsync_EmptyId_Exception()
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
-			void Act() => tenorClient.GetGifs(limit, pos, "", "");
+			void Act() => tenorClient.GetGifs(20, "0", "", "");
 
 			// Assert
 			Assert.That(Act,
@@ -438,14 +469,23 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
+		[TestCase(null, 20, "0")]
+		[TestCase("",   20, "0")]
+		[TestCase("1",  20, "0")]
+		[TestCase("1",  20, "0")]
+		[TestCase("1",  1,  "0")]
+		[TestCase("1",  4,  "0")]
+		[TestCase("1",  49, "0")]
+		[TestCase("1",  50, "0")]
+		[TestCase(null, 20, "0")]
+		[TestCase("1",  20, null)]
+		[TestCase("1",  20, "")]
+		[TestCase("1",  20, "0")]
+		[TestCase("1",  20, "0")]
 		public void GetRandomGifsAsync_Success(string q, int limit, string pos)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(q,     Is.Not.EqualTo(""));
-			Assume.That(pos,   Is.Not.EqualTo(""));
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
 			void Act() => tenorClient.GetRandomGifs(q, limit, pos);
@@ -454,17 +494,16 @@ namespace TenorSharp.Tests
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void GetRandomGifsAsync_LimitOutOfRange_Exception(string q, int limit, string pos)
+		[TestCase(0)]
+		[TestCase(-1)]
+		[TestCase(51)]
+		public void GetRandomGifsAsync_LimitOutOfRange_Exception(int limit)
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(limit, Is.LessThanOrEqualTo(0).Or.GreaterThan(50));
-			Assume.That(pos,   Is.Not.EqualTo(""));
-			Assume.That(q,     Is.Not.EqualTo(""));
 
 			// Act
-			void Act() => tenorClient.GetRandomGifs(q, limit, pos);
+			void Act() => tenorClient.GetRandomGifs("test", limit);
 
 			// Assert
 			Assert.That(Act,
@@ -472,31 +511,27 @@ namespace TenorSharp.Tests
 					  .EqualTo("Limit must be between 1 and 50."));
 		}
 
-		[Theory]
-		public void GetRandomGifsAsync_EmptySearch_Exception(int limit, string pos)
+		[Test]
+		public void GetRandomGifsAsync_EmptySearch_Exception()
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(pos,   Is.Not.EqualTo(""));
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
-			void Act() => tenorClient.GetRandomGifs("", limit, pos);
+			void Act() => tenorClient.GetRandomGifs("");
 
 			// Assert
 			Assert.That(Act, Throws.Nothing);
 		}
 
-		[Theory]
-		public void GetRandomGifsAsync_EmptyPos_Exception(string q, int limit)
+		[Test]
+		public void GetRandomGifsAsync_EmptyPos_Exception()
 		{
 			// Arrange
 			var tenorClient = CreateTenorClient();
-			Assume.That(q,     Is.Not.EqualTo(""));
-			Assume.That(limit, Is.GreaterThan(0).And.LessThanOrEqualTo(50));
 
 			// Act
-			void Act() => tenorClient.GetRandomGifs(q, limit, "");
+			void Act() => tenorClient.GetRandomGifs("test", 20, "");
 
 			// Assert
 			Assert.That(Act, Throws.Nothing);
