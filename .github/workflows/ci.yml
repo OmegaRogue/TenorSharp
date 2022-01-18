@@ -38,3 +38,11 @@ jobs:
         with:
           name: test-results
           path: TenorSharp.Tests/TestResults/test-results.trx
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()                               # run this step even if previous step failed
+        with:
+          name: DotNet Tests                                     # Name of the check run which will be created
+          path: TenorSharp.Tests/TestResults/test-results.trx    # Path to test results
+          reporter: dotnet-trx                                   # Format of test results
+          
