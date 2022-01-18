@@ -2,4 +2,8 @@ https://api.tenor.com/v1/search?key={{TENOR_KEY}}&q=test&limit=50&pos=m
 
 ###
 
-https://api.tenor.com/v1/search?key={{TENOR_KEY}}&q=85g9g8&anon_id=hzM408QEhd94oSmekc&limit=40&pos=4&ar_range=all&contentfilter=off&locale=en_US
+https://api.tenor.com/v1/search?key={{TENOR_KEY}}&q=lorem ipsum&anon_id=00000000000000000
+
+###
+
+https://g.tenor.com/v1/anonid?key={{TENOR_KEY}}&anon_id=00000000000000000

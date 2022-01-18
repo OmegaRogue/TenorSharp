@@ -1,5 +1,9 @@
 namespace TenorSharp.Enums;
 
+/// <summary>
+/// The Type of Categories to return from a Category Request
+/// </summary>
+
 // ReSharper disable InconsistentNaming
 public enum Type
 {

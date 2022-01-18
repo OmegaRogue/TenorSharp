@@ -4,19 +4,33 @@
 
         <IsPackable>false</IsPackable>
 
-        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net5.0;net6.0;netcoreapp3.1</TargetFrameworks>
 
         <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-        <PackageReference Include="Moq" Version="4.16.1" />
-        <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="FluentAssertions" Version="6.3.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0"/>
+        <PackageReference Include="Moq" Version="4.16.1"/>
+        <PackageReference Include="NSubstitute" Version="4.2.2"/>
+        <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.15">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NSubstitute.QuickFixes" Version="0.1.0"/>
+        <PackageReference Include="NUnit3TestAdapter" Version="4.2.0"/>
+        <PackageReference Include="RestSharp" Version="107.0.3"/>
+        <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0"/>
+        <PackageReference Include="xunit" Version="2.4.1"/>
+        <PackageReference Include="Xunit.Combinatorial" Version="1.4.1"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="NUnit" Version="3.13.2"/>
+        <PackageReference Include="NUnit.Analyzers" Version="3.3.0"/>
+        <PackageReference Include="NUnit.Console" Version="3.13.2"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -25,6 +39,14 @@
 
     <ItemGroup>
         <Folder Include="obj"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+        <PackageReference Include="MoqRestSharp.Helpers" Version="2021.4.30"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+        <PackageReference Include="MoqRestSharp.Helpers" Version="2021.4.30"/>
     </ItemGroup>
 
 </Project>

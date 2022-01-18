@@ -1,3 +1,6 @@
+// ReSharper disable CommentTypo
+// ReSharper disable UnusedMember.Global
+
 namespace TenorSharp.Enums;
 
 // ReSharper disable InconsistentNaming

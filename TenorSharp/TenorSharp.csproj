@@ -16,9 +16,10 @@
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net5.0;net6.0;netcoreapp3.1</TargetFrameworks>
         <LangVersion>10</LangVersion>
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +29,7 @@
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
         <PackageReference Include="RestSharp" Version="107.1.1"/>
+        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="107.1.1"/>
     </ItemGroup>
 
     <ItemGroup>

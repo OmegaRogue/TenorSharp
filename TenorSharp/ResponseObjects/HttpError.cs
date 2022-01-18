@@ -1,7 +1,13 @@
+﻿using System;
+
 using Newtonsoft.Json;
 
 namespace TenorSharp.ResponseObjects;
 
+/// <summary>
+/// an HTTP Error Returned by the Tenor API
+/// </summary>
+[Obsolete("HttpError is deprecated, please use TenorException instead.")]
 public class HttpError
 {
 	/// <summary>
@@ -14,5 +20,5 @@ public class HttpError
 	///     a string message describing the error
 	/// </summary>
 	[JsonProperty("error")]
-	public string Error;
+	public string? Error;
 }
