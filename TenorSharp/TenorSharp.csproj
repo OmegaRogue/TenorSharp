@@ -28,8 +28,8 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="RestSharp" Version="107.0.3"/>
-        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="107.0.3"/>
+        <PackageReference Include="RestSharp" Version="107.1.1"/>
+        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="107.1.1"/>
     </ItemGroup>
 
     <ItemGroup>
