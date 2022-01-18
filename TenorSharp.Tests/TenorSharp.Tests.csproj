@@ -20,7 +20,7 @@
         </PackageReference>
         <PackageReference Include="NSubstitute.QuickFixes" Version="0.1.0"/>
         <PackageReference Include="NUnit3TestAdapter" Version="4.2.0"/>
-        <PackageReference Include="RestSharp" Version="107.0.3"/>
+        <PackageReference Include="RestSharp" Version="107.1.1"/>
         <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0"/>
         <PackageReference Include="xunit" Version="2.4.1"/>
         <PackageReference Include="Xunit.Combinatorial" Version="1.4.1"/>
