@@ -1,7 +1,7 @@
 ﻿name: 'Test Report'
 on:
   workflow_run:
-    workflows: ['Test', 'Release']                     # runs after CI workflow
+    workflows: ['Test']                     # runs after CI workflow
     types:
       - completed
 jobs:
@@ -12,5 +12,5 @@ jobs:
         with:
           artifact: test-results            # artifact name
           name: DotNet Tests                  # Name of the check run which will be created
-          path: '*.xml'                     # Path to test results (inside artifact .zip)
+          path: '*.trx'                     # Path to test results (inside artifact .zip)
           reporter: dotnet-trx              # Format of test results
