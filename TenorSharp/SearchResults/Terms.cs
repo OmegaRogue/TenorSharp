@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace TenorSharp.SearchResults;
 
@@ -7,6 +7,6 @@ public class Terms
 	/// <summary>
 	///     An array of suggested search terms.
 	/// </summary>
-	[JsonProperty("results", Required = Required.Always)]
-	public string[] SearchTerms;
+	[JsonPropertyName("results")]
+	public string[] SearchTerms { get; set; }
 }

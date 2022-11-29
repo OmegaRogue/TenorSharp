@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
+using System.Text.Json;
 
 using RestSharp;
 
@@ -20,7 +20,7 @@ namespace TenorSharp;
 
 public class TenorClient
 {
-	private const string BaseUri = "https://g.tenor.com/v1/";
+	private const string BaseUri = "https://tenor.googleapis.com/v2/";
 
 	private static readonly Locale DefaultLocale = new("en_US");
 
@@ -164,7 +164,7 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			var res = JsonConvert.DeserializeObject<Gif>(content);
+			var res = JsonSerializer.Deserialize<Gif>(content);
 			if (res == null)
 				throw new Exception("API Returned null");
 			res.Client = this;
@@ -175,7 +175,7 @@ public class TenorClient
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error.Code);
 		}
 		catch (Exception e)
@@ -219,7 +219,7 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			var res = JsonConvert.DeserializeObject<Gif>(content);
+			var res = JsonSerializer.Deserialize<Gif>(content);
 			if (res == null)
 				throw new Exception("API Returned null");
 			res.Client = this;
@@ -229,7 +229,7 @@ public class TenorClient
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error.Code);
 		}
 		catch (Exception e)
@@ -264,11 +264,11 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Category>(content);
+			return JsonSerializer.Deserialize<Category>(content);
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error.Code);
 		}
 		catch (Exception e)
@@ -307,11 +307,11 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Terms>(content);
+			return JsonSerializer.Deserialize<Terms>(content);
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error!.Code);
 		}
 		catch (Exception e)
@@ -346,11 +346,11 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Terms>(content);
+			return JsonSerializer.Deserialize<Terms>(content);
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error!.Code);
 		}
 		catch (Exception e)
@@ -385,11 +385,11 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Terms>(content);
+			return JsonSerializer.Deserialize<Terms>(content);
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error!.Code);
 		}
 		catch (Exception e)
@@ -427,11 +427,11 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Register>(content)?.ShareStatus;
+			return JsonSerializer.Deserialize<Register>(content)?.ShareStatus;
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error!.Code);
 		}
 		catch (Exception e)
@@ -498,7 +498,7 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			var res = JsonConvert.DeserializeObject<Gif>(content);
+			var res = JsonSerializer.Deserialize<Gif>(content);
 			if (res == null)
 				throw new Exception("API Returned null");
 			res.Client = this;
@@ -509,7 +509,7 @@ public class TenorClient
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error.Code);
 		}
 		catch (Exception e)
@@ -539,11 +539,11 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			return JsonConvert.DeserializeObject<Session>(content)?.AnonId;
+			return JsonSerializer.Deserialize<Session>(content)?.AnonId;
 		}
 		catch (JsonException)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, error!.Code);
 		}
 		catch (Exception e)
@@ -597,7 +597,7 @@ public class TenorClient
 		{
 			if (content == null)
 				throw new Exception("API Returned null");
-			var res = JsonConvert.DeserializeObject<Gif>(content);
+			var res = JsonSerializer.Deserialize<Gif>(content);
 			if (res == null)
 				throw new Exception("API Returned null");
 			res.Client = this;
@@ -608,7 +608,7 @@ public class TenorClient
 		}
 		catch (JsonException e)
 		{
-			var error = JsonConvert.DeserializeObject<HttpError>(content!);
+			var error = JsonSerializer.Deserialize<HttpError>(content!);
 			throw new TenorException(error!.Error, e, error!.Code);
 		}
 		catch (Exception e)

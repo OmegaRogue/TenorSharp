@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 
-using Newtonsoft.Json;
-
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using TenorSharp.Enums;
 using TenorSharp.ResponseObjects;
 
@@ -17,17 +17,17 @@ public class Gif
 	internal SearchTypes Type;
 
 	/// <summary>
+	///     the most relevant GIFs for the requested search term - Sorted by relevancy Rank
+	/// </summary>
+	[JsonPropertyName("results")]
+	public GifObject[] GifResults { get; set; }
+	
+	/// <summary>
 	///     a position identifier to use with the next API query to retrieve the next set of results, or null if there are no
 	///     further results.
 	/// </summary>
-	[JsonProperty("next", Required = Required.Always)]
+	[JsonPropertyName("next")]
 	public string NextGifs { get; set; }
-
-	/// <summary>
-	///     the most relevant GIFs for the requested search term - Sorted by relevancy Rank
-	/// </summary>
-	[JsonProperty("results", Required = Required.Always)]
-	public GifObject[] GifResults { get; set; }
 
 	/// <summary>
 	///     returns the next set of GIFs for the used search term and result count
