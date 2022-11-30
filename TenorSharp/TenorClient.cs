@@ -18,7 +18,7 @@ using Type = TenorSharp.Enums.Type;
 
 namespace TenorSharp;
 
-public class TenorClient
+public class TenorClient 
 {
 	private const string BaseUri = "https://tenor.googleapis.com/v2/";
 
