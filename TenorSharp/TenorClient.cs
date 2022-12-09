@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -81,7 +83,7 @@ public class TenorClient
 	/// <summary>
 	///     Reduce the Number of GIF formats returned in the GifObject list.
 	/// </summary>
-	private MediaFilter _mediaFilter;
+	private List<GifFormat> _mediaFilter;
 
 
 	public TenorClient(
@@ -89,17 +91,18 @@ public class TenorClient
 		Locale        locale        = null,
 		AspectRatio   arRange       = AspectRatio.all,
 		ContentFilter contentFilter = ContentFilter.off,
-		MediaFilter   mediaFilter   = MediaFilter.off,
+		List<GifFormat>  mediaFilter  = null,
 		string        anonId        = null,
 		RestClient    testClient    = null
 	)
 	{
+		mediaFilter ??= new List<GifFormat>();
+
 		_locale = locale     ?? DefaultLocale;
 		_client = testClient ?? new RestClient(BaseUri);
 
 		_arRange       = arRange;
 		_contentFilter = contentFilter;
-		_mediaFilter   = mediaFilter;
 		_apiKey        = apiKey;
 
 		_anonId = anonId;
@@ -154,10 +157,13 @@ public class TenorClient
 					  .AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
 		if (_anonId != null)
 			_searchRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_searchRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
 
-
+		if (_mediaFilter.Count > 0)
+		{
+			var filter = string.Join(',', _mediaFilter.Select(x => x.ToString()));
+			_searchRequest.AddOrUpdateParameter("media_filter", filter, ParameterType.QueryString);
+		}
+		
 		var result  = await _client.ExecuteAsync(_searchRequest);
 		var content = result.Content;
 		try
@@ -210,8 +216,13 @@ public class TenorClient
 						.AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
 		if (_anonId != null)
 			_trendingRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_trendingRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
+
+		if (_mediaFilter.Count > 0)
+		{
+			var filter = string.Join(',', _mediaFilter.Select(x => x.ToString()));
+			_trendingRequest.AddOrUpdateParameter("media_filter", filter, ParameterType.QueryString);
+		}
+		
 		var result  = await _client.ExecuteAsync(_trendingRequest);
 		var content = result.Content;
 
@@ -297,9 +308,12 @@ public class TenorClient
 						  .AddOrUpdateParameter("locale", _locale, ParameterType.QueryString);
 		if (_anonId != null)
 			_suggestionRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_suggestionRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
-
+		
+		if (_mediaFilter.Count > 0)
+		{
+			var filter = string.Join(',', _mediaFilter.Select(x => x.ToString()));
+			_suggestionRequest.AddOrUpdateParameter("media_filter", filter, ParameterType.QueryString);
+		}
 
 		var result  = await _client.ExecuteAsync(_suggestionRequest);
 		var content = result.Content;
@@ -488,9 +502,12 @@ public class TenorClient
 					.AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
 		if (_anonId != null)
 			_gifsRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_gifsRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
 
+		if (_mediaFilter.Count > 0)
+		{
+			var filter = string.Join(',', _mediaFilter.Select(x => x.ToString()));
+			_gifsRequest.AddOrUpdateParameter("media_filter", filter, ParameterType.QueryString);
+		}
 
 		var result  = await _client.ExecuteAsync(_gifsRequest);
 		var content = result.Content;
@@ -585,8 +602,13 @@ public class TenorClient
 					  .AddOrUpdateParameter("ar_range",      _arRange,       ParameterType.QueryString)
 					  .AddOrUpdateParameter("contentfilter", _contentFilter, ParameterType.QueryString)
 					  .AddOrUpdateParameter("locale",        _locale,        ParameterType.QueryString);
-		if (_mediaFilter != MediaFilter.off)
-			_rndGifRequest.AddOrUpdateParameter("media_filter", _mediaFilter, ParameterType.QueryString);
+
+		if (_mediaFilter.Count > 0)
+		{
+			var filter = string.Join(',', _mediaFilter.Select(x => x.ToString()));
+			_rndGifRequest.AddOrUpdateParameter("media_filter", filter, ParameterType.QueryString);
+		}
+		
 		if (_anonId != null)
 			_rndGifRequest.AddOrUpdateParameter("anon_id", _anonId, ParameterType.QueryString);
 
@@ -653,17 +675,17 @@ public class TenorClient
 
 	public Locale        Locale           { get; set; }
 	public ContentFilter ContentFilter    { get; set; }
-	public MediaFilter   MediaFilter      { get; set; }
+	public List<GifFormat>   MediaFilter      { get; set; }
 	public AspectRatio   AspectRatioRange { get; set; }
 
 	[Obsolete("GetContentFilter is deprecated, please use ContentFilter instead.")]
 	public ContentFilter GetContentFilter() => ContentFilter;
 
 	[Obsolete("SetMediaFilter is deprecated, please use MediaFilter instead.")]
-	public void SetMediaFilter(MediaFilter filter) => MediaFilter = filter;
+	public void SetMediaFilter(List<GifFormat> filter) => MediaFilter = filter;
 
 	[Obsolete("GetMediaFilter is deprecated, please use MediaFilter instead.")]
-	public MediaFilter GetMediaFilter() => MediaFilter;
+	public List<GifFormat> GetMediaFilter() => MediaFilter;
 
 	[Obsolete("SetAspectRatioRange is deprecated, please use AspectRatioRange instead.")]
 	public void SetAspectRatioRange(AspectRatio ratio) => AspectRatioRange = ratio;
