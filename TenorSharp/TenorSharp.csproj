@@ -3,12 +3,12 @@
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <Title>TenorSharp</Title>
-        <Authors>OmegaRogue</Authors>
+        <Authors>Vooper Media LLC, OmegaRogue</Authors>
         <Description>a dotNet Library for Tenor written in C#
-            here is an Invite to the TenorSharp Discord Server: https://discord.gg/sWwzJeG
+            forked from https://github.com/OmegaRogue/TenorSharp
         </Description>
         <Copyright>OmegaRogue 2020</Copyright>
-        <PackageProjectUrl>https://github.com/OmegaRogue/TenorSharp</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Vooper-Media-LLC/Valour.TenorSharp</PackageProjectUrl>
         <RepositoryUrl>https://github.com/OmegaRogue/TenorSharp</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>Tenor, Tenor-API</PackageTags>
@@ -19,6 +19,8 @@
         <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
         <LangVersion>10</LangVersion>
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+        <Version>1.0.2</Version>
+        <PackageId>Valour.TenorSharp</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,12 +28,12 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="RestSharp" Version="107.0.3"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="RestSharp" Version="107.0.3" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="obj"/>
+        <Folder Include="obj" />
     </ItemGroup>
     <!--    <Target Name="PrepareReleaseNotes" BeforeTargets="GenerateNuspec">-->
     <!--        <PropertyGroup>-->

@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace TenorSharp.SearchResults;
 
@@ -7,6 +7,6 @@ public class Register
 	/// <summary>
 	///     set to “ok” if share registration was successful
 	/// </summary>
-	[JsonProperty("status", Required = Required.Always)]
+	[JsonPropertyName("status")]
 	public string ShareStatus { get; set; }
 }

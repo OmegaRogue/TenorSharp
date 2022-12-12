@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ public class IntegrationTests
 	private const           string      Chars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	private static readonly Random      Random  = new();
 	private static readonly string      ApiKey  = Environment.GetEnvironmentVariable("TENOR_TEST_API_KEY");
-	private readonly        TenorClient _client = new(ApiKey, mediaFilter: MediaFilter.basic);
+	private readonly        TenorClient _client = new(ApiKey, mediaFilter: new List<GifFormat>());
 
 
 	private readonly ITestOutputHelper _testOutputHelper;

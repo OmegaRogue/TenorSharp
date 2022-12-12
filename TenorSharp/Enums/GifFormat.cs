@@ -17,14 +17,6 @@ public enum GifFormat
 	/// </summary>
 	gif,
 	/// <summary>
-	///     Resolution and size: High quality GIF sticker format, largest file size available
-	///     Dimensions: Original upload dimensions (no limits)
-	///     Usage Notes: Use this size for sticker shares for high bandwidth users
-	///     Media Filters supported: default
-	/// </summary>
-	gif_transparent,
-
-	/// <summary>
 	///     Resolution and size: small reduction in size of the GIF format
 	///     Dimensions: Original upload dimensions (no limits) but much higher compression rate
 	///     Usage Notes: Use this size for GIF previews on desktop
@@ -39,13 +31,6 @@ public enum GifFormat
 	///     Media Filters supported: default, basic, minimal
 	/// </summary>
 	tinygif,
-	/// <summary>
-	///     Resolution and size: educed size of the GIF sticker format, max size of 500KB
-	///     Dimensions: Up to 220X220 pixels, height scaled with aspect ratio preserved
-	///     Usage Notes: Use this size for sticker previews for high bandwidth users and shares for low bandwidth users
-	///     Media Filters supported: default
-	/// </summary>
-	tinygif_transparent,
 
 	/// <summary>
 	///     Resolution and size: smallest size of the GIF format
@@ -54,36 +39,7 @@ public enum GifFormat
 	///     Media Filters supported: default, basic
 	/// </summary>
 	nanogif,
-	/// <summary>
-	///     Resolution and size: smallest size of the GIF sticker format, max size of 100KB
-	///     Dimensions: Up to 90X90 pixels, width scaled with aspect ratio preserved
-	///     Usage Notes: Use this size for sticker previews for low bandwidth users
-	///     Media Filters supported: default
-	/// </summary>
-	nanogif_transparent,
 	
-	/// <summary>
-	///     Resolution and size: High quality webp sticker format, largest file size available
-	///     Dimensions: Original upload dimensions (no limits)
-	///     Usage Notes: Use this size for sticker shares for high bandwidth users.
-	///     Media Filters supported: default
-	/// </summary>
-	webp_transparent,
-	/// <summary>
-	///     Resolution and size: reduced size of the webp sticker format, max size of 500KB
-	///     Dimensions: Up to 220X220 pixels, height scaled with aspect ratio preserved
-	///     Usage Notes: Use this size for sticker previews for high bandwidth users and shares for low bandwidth users
-	///     Media Filters supported: default
-	/// </summary>
-	tinywebp_transparent,
-	/// <summary>
-	///     Resolution and size: smallest size of the webp sticker format, max size of 100KB
-	///     Dimensions: Up to 90X90 pixels, width scaled with aspect ratio preserved
-	///     Usage Notes: Use this size for sticker previews for low bandwidth users
-	///     Media Filters supported: default
-	/// </summary>
-	nanowebp_transparent,
-
 	/// <summary>
 	///     Resolution and size: highest quality video format, largest of the video formats, but smaller than GIF
 	///     Dimensions: Similar to gif, but padded to fit video container specifications (usually 8-pixel increments)

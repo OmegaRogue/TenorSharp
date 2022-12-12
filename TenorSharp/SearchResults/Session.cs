@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace TenorSharp.SearchResults;
 
@@ -8,6 +8,6 @@ public class Session
 	///     an anonymous id used to represent a user.
 	///     This allows for tracking without the use of personally identifiable information
 	/// </summary>
-	[JsonProperty("anon_id", Required = Required.Always)]
+	[JsonPropertyName("anon_id")]
 	public string AnonId { get; set; }
 }

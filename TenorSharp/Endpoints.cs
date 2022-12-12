@@ -55,7 +55,7 @@ public static class Endpoints
 	/// <summary>
 	///     Get the GIF(s) for the corresponding id(s)
 	/// </summary>
-	public const string Gifs = "gifs";
+	public const string Gifs = "posts";
 
 	/// <summary>
 	///     Get an anonymous ID for a new user.

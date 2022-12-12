@@ -1,3 +1,6 @@
+## Archived.
+### This repo was made to improve TenorSharp nad move it to V2. We decided to to simply rewrite our own wrapper with no dependencies instead.
+
 # TenorSharp
 ![Build Status](https://img.shields.io/github/workflow/status/OmegaRogue/TenorSharp/.NET%20Core)
 [![GNU LGPL licensed](https://img.shields.io/github/license/OmegaRogue/TenorSharp)](COPYING.LESSER)
