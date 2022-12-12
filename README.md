@@ -10,6 +10,9 @@ TenorSharp is a C# Library for the [TenorAPI](https://tenor.com/gifapi). TenorSh
 
 TenorSharp can be used to retrieve Content from Tenor without directly interfacing with the Tenor REST API.
 
+# Looking for maintainers
+I currently do not have the time and energy to properly maintain this by myself, any help would be greatly appreciated, especially with writing tests. You can contact me on the discord server, over matrix (linked in my GitHub profile), Email or Discussions on this Repo.
+
 ## Getting Started
 
 For Development, fork and Clone this GitHub Repo.
