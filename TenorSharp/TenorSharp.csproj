@@ -16,18 +16,20 @@
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net5.0;net6.0;netcoreapp3.1</TargetFrameworks>
         <LangVersion>10</LangVersion>
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="GitVersion.MsBuild" Version="5.8.1">
+        <PackageReference Include="GitVersion.MsBuild" Version="5.11.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="RestSharp" Version="107.0.3"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2"/>
+        <PackageReference Include="RestSharp" Version="108.0.4"/>
+        <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="108.0.4"/>
     </ItemGroup>
 
     <ItemGroup>

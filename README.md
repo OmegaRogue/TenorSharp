@@ -1,12 +1,17 @@
 # TenorSharp
-![Build Status](https://img.shields.io/github/workflow/status/OmegaRogue/TenorSharp/.NET%20Core)
+![Build Status](https://img.shields.io/github/workflow/status/OmegaRogue/TenorSharp/Release)
+![Preview Build Status](https://img.shields.io/github/workflow/status/OmegaRogue/TenorSharp/Release%20Preview)
+![Test Status](https://img.shields.io/github/workflow/status/OmegaRogue/TenorSharp/Test)
 [![GNU LGPL licensed](https://img.shields.io/github/license/OmegaRogue/TenorSharp)](COPYING.LESSER)
-[![Nuget](https://img.shields.io/nuget/v/TenorSharp)](https://www.nuget.org/packages/TenorSharp/)
+[![NuGt](https://img.shields.io/nuget/v/TenorSharp)](https://www.nuget.org/packages/TenorSharp/)
 [![Discord](https://img.shields.io/discord/569206809693257728)](https://discord.gg/sWwzJeG)
 
 TenorSharp is a C# Library for the [TenorAPI](https://tenor.com/gifapi). TenorSharp was made with dotNET 5.0 and 6.0
 
 TenorSharp can be used to retrieve Content from Tenor without directly interfacing with the Tenor REST API.
+
+# Looking for maintainers
+I currently do not have the time and energy to properly maintain this by myself, any help would be greatly appreciated, especially with writing tests. You can contact me on the discord server, over matrix (linked in my GitHub profile), Email or Discussions on this Repo.
 
 ## Getting Started
 

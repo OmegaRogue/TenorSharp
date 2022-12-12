@@ -1,5 +1,8 @@
 namespace TenorSharp;
 
+/// <summary>
+/// A Class containing the Tenor API Endpoints.
+/// </summary>
 public static class Endpoints
 {
 	/// <summary>

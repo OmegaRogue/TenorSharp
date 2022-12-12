@@ -2,6 +2,9 @@ using Newtonsoft.Json;
 
 namespace TenorSharp.SearchResults;
 
+/// <summary>
+/// An Object containing the new anonymous id for a user.
+/// </summary>
 public class Session
 {
 	/// <summary>
@@ -9,5 +12,5 @@ public class Session
 	///     This allows for tracking without the use of personally identifiable information
 	/// </summary>
 	[JsonProperty("anon_id", Required = Required.Always)]
-	public string AnonId { get; set; }
+	public string AnonId { get; set; } = null!;
 }
