@@ -19,7 +19,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NSubstitute.QuickFixes" Version="0.1.0"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="4.3.1"/>
+        <PackageReference Include="NUnit3TestAdapter" Version="4.4.0"/>
         <PackageReference Include="RestSharp" Version="108.0.4"/>
         <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0"/>
         <PackageReference Include="xunit" Version="2.4.2"/>
